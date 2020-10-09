@@ -7,7 +7,6 @@
 
 #include <api/api.hpp>
 
-#include <printer/Printer.hpp>
 #include <var/String.hpp>
 #include <var/Vector.hpp>
 
@@ -539,6 +538,8 @@ private:
 };
 
 } // namespace json
+
+#include "macros.hpp"
 
 namespace printer {
 class Printer;

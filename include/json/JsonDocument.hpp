@@ -37,7 +37,7 @@ public:
     embed = JSON_EMBED
   };
 
-  JsonDocument &set_flags(OptionFlags flags) {
+  JsonDocument &set_option_flags(OptionFlags flags) {
     m_option_flags = flags;
     return *this;
   }

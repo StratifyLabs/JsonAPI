@@ -46,19 +46,16 @@ target_compile_options(${RELEASE_TARGET}
 target_include_directories(${RELEASE_TARGET}
 	PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include/ChartAPI>
+	$<INSTALL_INTERFACE:include/${LOCAL_NAME}>
 	PRIVATE
 	)
 
 target_link_libraries(${RELEASE_TARGET}
 	PUBLIC
-	ChartAPI_release_v7m
 	FsAPI_release_v7m
 	ChronoAPI_release_v7m
 	VarAPI_release_v7m
 	)
-
-
 
 option(BUILD_DEBUG "Build debug version of library" OFF)
 if(BUILD_DEBUG)

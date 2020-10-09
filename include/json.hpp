@@ -1,15 +1,13 @@
-#ifndef REPORTAPI_REPORT_HPP
-#define REPORTAPI_REPORT_HPP
+#ifndef JSONAPI_JSON_HPP
+#define JSONAPI_JSON_HPP
 
-namespace report{}
+namespace json {
+}
 
-#include "report/Writer.hpp"
-#include "report/Parser.hpp"
-#include "report/Csv.hpp"
-#include "report/Histogram.hpp"
-#include "report/Mermaid.hpp"
-#include "report/Table.hpp"
+#include "json/Json.hpp"
+#include "json/JsonDocument.hpp"
+#include "json/macros.hpp"
 
-using namespace report;
+using namespace json;
 
-#endif // REPORTAPI_REPORT_HPP
+#endif // JSONAPI_JSON_HPP

@@ -45,16 +45,7 @@ target_include_directories(${RELEASE_TARGET}
 	PRIVATE
 	)
 
-#[[
-target_link_libraries(${RELEASE_TARGET}
-	PUBLIC
-	FsAPI_release_link
-	ChronoAPI_release_link
-	VarAPI_release_link
-	)
-#]]
-
-set(LIBRARIES FsAPI_release ChronoAPI_release VarAPI_release)
+set(LIBRARIES FsAPI ChronoAPI VarAPI)
 
 option(BUILD_DEBUG "Build debug version of library" OFF)
 if(BUILD_DEBUG)

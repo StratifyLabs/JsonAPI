@@ -45,18 +45,10 @@ size_t JsonDocument::load_file_data(void *buffer, size_t buflen, void *data) {
       .value();
 }
 
-JsonValue JsonDocument::load(fs::File &file) {
+JsonValue JsonDocument::load(const fs::File &file) {
   JsonValue value;
-  value.m_value = JsonValue::api()->load_callback(
-      load_file_data, static_cast<void *>(&file), json_flags(),
-      &m_error.m_value);
-  return value;
-}
-
-JsonValue JsonDocument::load(json_load_callback_t callback, void *context) {
-  JsonValue value;
-  value.m_value = JsonValue::api()->load_callback(
-      callback, context, json_flags(), &m_error.m_value);
+  value.m_value =
+      JsonValue::api()->loadfd(file.fileno(), json_flags(), &m_error.m_value);
   return value;
 }
 
@@ -69,7 +61,7 @@ JsonDocument &JsonDocument::save(const JsonValue &value, var::StringView path) {
   fs::File f = fs::File::create(path, fs::File::IsOverwrite::yes);
   result = JsonValue::api()->dumpfd(value.m_value, f.fileno(), json_flags());
 #endif
-  API_ASSIGN_ERROR_CODE(api::ErrorCode::io_error, result);
+  API_SYSTEM_CALL("", result);
   return *this;
 }
 
@@ -88,7 +80,7 @@ var::String JsonDocument::to_string(const JsonValue &value) const {
   return result;
 }
 
-JsonDocument &JsonDocument::save(const JsonValue &value, fs::File &file) {
+JsonDocument &JsonDocument::save(const JsonValue &value, const fs::File &file) {
   JsonValue::api()->dumpfd(value.m_value, file.fileno(), json_flags());
   return *this;
 }

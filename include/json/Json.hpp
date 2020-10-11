@@ -247,7 +247,7 @@ protected:
   virtual json_t *create() { return 0; }
 
   static void exit_fatal(const char *message);
-  static api::ErrorCode translate_json_error(int json_error);
+  static int translate_json_error(int json_error);
 
 private:
   friend class JsonDocument;

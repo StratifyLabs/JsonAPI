@@ -50,7 +50,7 @@ public:
    * \param path The path to the file
    * \return Zero on success
    */
-  JsonValue load(fs::File &file);
+  JsonValue load(const fs::File &file);
 
 #if defined __link
   enum class IsXmlFlat { no, yes };
@@ -73,14 +73,6 @@ public:
   JsonValue load(fs::Path file);
 
   /*!
-   * \details Loads a JSON value from streaming data
-   * \param callback The function to call when more data is available
-   * \param context This is passed to \a callback but not used internally
-   * \return Zero on success
-   */
-  JsonValue load(json_load_callback_t callback, void *context);
-
-  /*!
    * \details Loads a JSON value from a data object
    * \param data A reference to the data object containing the JSON
    * \return
@@ -98,7 +90,7 @@ public:
     return save(value, path.path());
   }
 
-  JsonDocument &save(const JsonValue &value, fs::File &file);
+  JsonDocument &save(const JsonValue &value, const fs::File &file);
 
   JsonDocument &save(const JsonValue &value, json_dump_callback_t callback,
                      void *context);

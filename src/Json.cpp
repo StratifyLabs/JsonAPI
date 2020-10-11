@@ -86,46 +86,46 @@ JsonValue::JsonValue() {
                      // constructor
 }
 
-api::ErrorCode JsonValue::translate_json_error(int json_result) {
+int JsonValue::translate_json_error(int json_result) {
   switch (json_result) {
   case json_error_unknown:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_out_of_memory:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_stack_overflow:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_cannot_open_file:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_invalid_argument:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_invalid_utf8:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_premature_end_of_input:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_end_of_input_expected:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_invalid_syntax:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_invalid_format:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_wrong_type:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_null_character:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_null_value:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_null_byte_in_key:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_duplicate_key:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_numeric_overflow:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_item_not_found:
-    return api::ErrorCode::no_memory;
+    return -1;
   case json_error_index_out_of_range:
-    return api::ErrorCode::no_memory;
+    return -1;
   }
-  return api::ErrorCode::none;
+  return 0;
 }
 
 #if USE_FS
@@ -193,30 +193,26 @@ const JsonArray &JsonValue::to_array() const {
 JsonArray &JsonValue::to_array() { return (JsonArray &)*this; }
 
 int JsonValue::create_if_not_valid() {
+  API_RETURN_VALUE_IF_ERROR(-1);
   if (is_valid()) {
     return 0;
   }
   m_value = create();
   if (m_value == nullptr) {
-    API_ASSIGN_ERROR_CODE(api::ErrorCode::no_memory, -1);
+    API_SYSTEM_CALL("", -1);
     return -1;
   }
   return 0;
 }
 
 JsonValue &JsonValue::assign(var::StringView value) {
+  API_RETURN_VALUE_IF_ERROR(*this);
   if (is_string()) {
-    API_ASSIGN_ERROR_CODE(
-      api::ErrorCode::no_memory,
-      api()->string_set(m_value, value.cstring()));
+    API_SYSTEM_CALL("", api()->string_set(m_value, value.cstring()));
   } else if (is_real()) {
-    API_ASSIGN_ERROR_CODE(
-      api::ErrorCode::no_memory,
-      api()->real_set(m_value, ::atoff(value.cstring())));
+    API_SYSTEM_CALL("", api()->real_set(m_value, ::atoff(value.cstring())));
   } else if (is_integer()) {
-    API_ASSIGN_ERROR_CODE(
-      api::ErrorCode::no_memory,
-      api()->integer_set(m_value, ::atoi(value.cstring())));
+    API_SYSTEM_CALL("", api()->integer_set(m_value, ::atoi(value.cstring())));
   } else if (is_true() || is_false()) {
     if (value == "true") {
       *this = JsonTrue();
@@ -341,21 +337,45 @@ JsonObject &JsonObject::operator=(const JsonObject &value) {
   return *this;
 }
 
-json_t *JsonObject::create() { return api()->create_object(); }
+json_t *JsonObject::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return api()->create_object();
+}
 
-json_t *JsonArray::create() { return api()->create_array(); }
+json_t *JsonArray::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_array());
+}
 
-json_t *JsonReal::create() { return api()->create_real(0.0f); }
+json_t *JsonReal::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_real(0.0f));
+}
 
-json_t *JsonInteger::create() { return api()->create_integer(0); }
+json_t *JsonInteger::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_integer(0));
+}
 
-json_t *JsonTrue::create() { return api()->create_true(); }
+json_t *JsonTrue::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_true());
+}
 
-json_t *JsonFalse::create() { return api()->create_false(); }
+json_t *JsonFalse::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_false());
+}
 
-json_t *JsonString::create() { return api()->create_string(""); }
+json_t *JsonString::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_string(""));
+}
 
-json_t *JsonNull::create() { return api()->create_null(); }
+json_t *JsonNull::create() {
+  API_RETURN_VALUE_IF_ERROR(nullptr);
+  return API_SYSTEM_CALL_NULL("", api()->create_null());
+}
 
 JsonObject &JsonObject::insert(var::StringView key, bool value) {
 
@@ -371,46 +391,37 @@ JsonObject &JsonObject::insert(var::StringView key, const JsonValue &value) {
     return *this;
   }
 
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->object_set(m_value, key.cstring(), value.m_value));
+  API_SYSTEM_CALL("", api()->object_set(m_value, key.cstring(), value.m_value));
   return *this;
 }
 
 JsonObject &JsonObject::update(const JsonValue &value, enum updates o_flags) {
+  API_RETURN_VALUE_IF_ERROR(*this);
   if (o_flags & update_existing) {
-    API_ASSIGN_ERROR_CODE(
-      api::ErrorCode::no_memory,
-      api()->object_update_existing(m_value, value.m_value));
+    API_SYSTEM_CALL("", api()->object_update_existing(m_value, value.m_value));
     return *this;
   }
 
   if (o_flags & update_missing) {
-    API_ASSIGN_ERROR_CODE(
-      api::ErrorCode::no_memory,
-      api()->object_update_missing(m_value, value.m_value));
+    API_SYSTEM_CALL("", api()->object_update_missing(m_value, value.m_value));
     return *this;
   }
 
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->object_update(m_value, value.m_value));
+  API_SYSTEM_CALL("", api()->object_update(m_value, value.m_value));
   return *this;
 }
 
 JsonObject &JsonObject::remove(var::StringView key) {
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->object_del(m_value, key.cstring()));
+  API_RETURN_VALUE_IF_ERROR(*this);
+  API_SYSTEM_CALL("", api()->object_del(m_value, key.cstring()));
   return *this;
 }
 
 u32 JsonObject::count() const { return api()->object_size(m_value); }
 
 JsonObject &JsonObject::clear() {
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->object_clear(m_value));
+  API_RETURN_VALUE_IF_ERROR(*this);
+  API_SYSTEM_CALL("", api()->object_clear(m_value));
   return *this;
 }
 
@@ -479,9 +490,7 @@ JsonArray &JsonArray::append(const JsonValue &value) {
   if (create_if_not_valid() < 0) {
     return *this;
   }
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->array_append(m_value, value.m_value));
+  API_SYSTEM_CALL("", api()->array_append(m_value, value.m_value));
   return *this;
 }
 
@@ -489,9 +498,7 @@ JsonArray &JsonArray::append(const JsonArray &array) {
   if (create_if_not_valid() < 0) {
     return *this;
   }
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->array_extend(m_value, array.m_value));
+  API_SYSTEM_CALL("", api()->array_extend(m_value, array.m_value));
   return *this;
 }
 
@@ -499,21 +506,19 @@ JsonArray &JsonArray::insert(size_t position, const JsonValue &value) {
   if (create_if_not_valid() < 0) {
     return *this;
   }
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->array_insert(m_value, position, value.m_value));
+  API_SYSTEM_CALL("", api()->array_insert(m_value, position, value.m_value));
   return *this;
 }
 
 JsonArray &JsonArray::remove(size_t position) {
-  API_ASSIGN_ERROR_CODE(
-    api::ErrorCode::no_memory,
-    api()->array_remove(m_value, position));
+  API_RETURN_VALUE_IF_ERROR(*this);
+  API_SYSTEM_CALL("", api()->array_remove(m_value, position));
   return *this;
 }
 
 JsonArray &JsonArray::clear() {
-  API_ASSIGN_ERROR_CODE(api::ErrorCode::no_memory, api()->array_clear(m_value));
+  API_RETURN_VALUE_IF_ERROR(*this);
+  API_SYSTEM_CALL("", api()->array_clear(m_value));
   return *this;
 }
 
@@ -552,12 +557,16 @@ var::Vector<bool> JsonArray::bool_list() {
 JsonString::JsonString() { m_value = create(); }
 
 JsonString::JsonString(var::StringView str) {
-  m_value = api()->create_string(str.cstring());
+  API_RETURN_IF_ERROR();
+  m_value = API_SYSTEM_CALL_NULL("", api()->create_string(str.cstring()));
 }
 
 JsonReal::JsonReal() { m_value = create(); }
 
-JsonReal::JsonReal(float value) { m_value = api()->create_real(value); }
+JsonReal::JsonReal(float value) {
+  API_RETURN_IF_ERROR();
+  m_value = API_SYSTEM_CALL_NULL("", api()->create_real(value));
+}
 
 JsonReal &JsonReal::operator=(float a) {
   if (create_if_not_valid() == 0) {
@@ -568,7 +577,10 @@ JsonReal &JsonReal::operator=(float a) {
 
 JsonInteger::JsonInteger() { m_value = create(); }
 
-JsonInteger::JsonInteger(int value) { m_value = api()->create_integer(value); }
+JsonInteger::JsonInteger(int value) {
+  API_RETURN_IF_ERROR();
+  m_value = API_SYSTEM_CALL_NULL("", api()->create_integer(value));
+}
 
 JsonInteger &JsonInteger::operator=(int a) {
   if (create_if_not_valid() == 0) {

@@ -1,4 +1,8 @@
 
+#if defined __link
+#include "xml2json.hpp"
+#endif
+
 #include <fs/File.hpp>
 
 #include "json/JsonDocument.hpp"
@@ -6,28 +10,29 @@
 using namespace var;
 using namespace json;
 
-JsonValue JsonDocument::load(fs::Path path) {
+JsonValue JsonDocument::load(StringView path) {
   JsonValue value;
-  value.m_value = JsonValue::api()->load_file(path.path().cstring(),
-                                              json_flags(), &m_error.m_value);
+  value.m_value = JsonValue::api()->load_file(path.cstring(), json_flags(),
+                                              &m_error.m_value);
   return value;
 }
 
 #if defined __link
-JsonValue JsonDocument::load(XmlString xml, XmlIsFlat is_flat) {
+JsonValue JsonDocument::from_xml_string(var::StringView xml,
+                                        IsXmlFlat is_flat) {
 #if !defined __android
-  std::string json_string =
-      xml2json(xml.argument().cstring(), is_flat.argument() == false);
-  return load(String(json_string.c_str()));
+  std::string json_string = xml2json(xml.cstring(), is_flat == IsXmlFlat::no);
+  return from_string(String(json_string.c_str()));
 #else
   return JsonValue();
 #endif
 }
 
-JsonValue JsonDocument::load(XmlFilePath path, XmlIsFlat is_flat) {
-  fs::DataFile data_file(fs::File::Path(path.argument()));
+JsonValue JsonDocument::load_xml(StringView path, IsXmlFlat is_flat) {
+  fs::File input(path, fs::OpenMode::read_only());
+  fs::DataFile data_file = fs::DataFile().reserve(input.size()).write(input);
   String xml_string = String(data_file.data());
-  return load(XmlString(xml_string), is_flat);
+  return from_xml_string(xml_string, is_flat);
 }
 #endif
 

@@ -60,9 +60,10 @@ public:
    * \param data A reference to the data object containing the JSON
    * \return
    */
-  JsonValue load(XmlString xml, IsXmlFlat is_flat = IsXmlFlat::yes);
+  JsonValue from_xml_string(var::StringView xml,
+                            IsXmlFlat is_flat = IsXmlFlat::yes);
 
-  JsonValue load(XmlFilePath path, IsXmlFlat is_flat = IsXmlFlat::yes);
+  JsonValue load_xml(var::StringView path, IsXmlFlat is_flat = IsXmlFlat::yes);
 #endif
 
   /*!
@@ -70,7 +71,7 @@ public:
    * \param file A reference to the file containing JSON
    * \return Zero on success
    */
-  JsonValue load(fs::Path file);
+  JsonValue load(var::StringView path);
 
   /*!
    * \details Loads a JSON value from a data object

@@ -12,13 +12,9 @@ set(LOCAL_NAME JsonAPI)
 project(${LOCAL_NAME} CXX)
 
 sos_sdk_add_subdirectory(PRIVATE_SOURCES ${CMAKE_SOURCE_DIR}/src)
-sos_sdk_add_subdirectory(INTERFACE_SOURCES ${CMAKE_SOURCE_DIR}/include)
+sos_sdk_add_subdirectory(INTERFACE_SOURCES include)
 
-include(targets/API_release_v7m)
-include(targets/VarAPI_release_v7m)
-include(targets/PrinterAPI_release_v7m)
-include(targets/ChronoAPI_release_v7m)
-include(targets/FsAPI_release_v7m)
+include(targets/StratifyAPI)
 
 sos_sdk_library_target(RELEASE ${LOCAL_NAME} "" release ${SOS_ARCH})
 
@@ -27,7 +23,6 @@ add_library(${RELEASE_TARGET} STATIC)
 set_property(TARGET ${RELEASE_TARGET} PROPERTY CXX_STANDARD 17)
 
 target_sources(${RELEASE_TARGET}
-	PUBLIC
 	PRIVATE
 	${INTERFACE_SOURCES}
 	${PRIVATE_SOURCES}
@@ -50,23 +45,27 @@ target_include_directories(${RELEASE_TARGET}
 	PRIVATE
 	)
 
+#[[
 target_link_libraries(${RELEASE_TARGET}
 	PUBLIC
-	FsAPI_release_v7m
-	ChronoAPI_release_v7m
-	VarAPI_release_v7m
+	FsAPI_release_link
+	ChronoAPI_release_link
+	VarAPI_release_link
 	)
+#]]
+
+set(LIBRARIES FsAPI_release ChronoAPI_release VarAPI_release)
 
 option(BUILD_DEBUG "Build debug version of library" OFF)
 if(BUILD_DEBUG)
 sos_sdk_library_target(DEBUG ${LOCAL_NAME} "${LIB_OPTION}" debug ${SOS_ARCH})
 add_library(${DEBUG_TARGET} STATIC)
 sos_sdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
-sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH})
+sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH} "")
 endif()
 
-sos_sdk_library("${RELEASE_OPTIONS}")
-#sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} VarAPI_release)
+#sos_sdk_library("${RELEASE_OPTIONS}")
+sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "${LIBRARIES}")
 
 install(DIRECTORY include/ DESTINATION include/${LOCAL_NAME} PATTERN CMakelists.txt EXCLUDE)
 

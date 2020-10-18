@@ -13,7 +13,7 @@ namespace json {
  * either memory or the filesystem.
  *
  */
-class JsonDocument : public api::Object {
+class JsonDocument : public api::ExecutionContext {
 public:
   enum class OptionFlags {
     reject_duplicates = JSON_REJECT_DUPLICATES,
@@ -60,7 +60,7 @@ public:
    * \param data A reference to the data object containing the JSON
    * \return
    */
-  JsonValue from_xml_string(var::StringView xml,
+  JsonValue from_xml_string(const char *xml,
                             IsXmlFlat is_flat = IsXmlFlat::yes);
 
   JsonValue load_xml(var::StringView path, IsXmlFlat is_flat = IsXmlFlat::yes);
@@ -78,7 +78,7 @@ public:
    * \param data A reference to the data object containing the JSON
    * \return
    */
-  JsonValue from_string(var::StringView json);
+  JsonValue from_string(const var::StringView json);
 
   var::String to_string(const JsonValue &value) const;
 

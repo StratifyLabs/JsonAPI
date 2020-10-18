@@ -12,17 +12,16 @@ using namespace json;
 
 JsonValue JsonDocument::load(StringView path) {
   JsonValue value;
-  value.m_value = JsonValue::api()->load_file(path.cstring(), json_flags(),
-                                              &m_error.m_value);
+  value.m_value = JsonValue::api()->load_file(fs::Path(path).cstring(),
+                                              json_flags(), &m_error.m_value);
   return value;
 }
 
 #if defined __link
-JsonValue JsonDocument::from_xml_string(var::StringView xml,
-                                        IsXmlFlat is_flat) {
+JsonValue JsonDocument::from_xml_string(const char *xml, IsXmlFlat is_flat) {
 #if !defined __android
-  std::string json_string = xml2json(xml.cstring(), is_flat == IsXmlFlat::no);
-  return from_string(String(json_string.c_str()));
+  std::string json_string = xml2json(xml, is_flat == IsXmlFlat::no);
+  return from_string(json_string.c_str());
 #else
   return JsonValue();
 #endif
@@ -30,15 +29,15 @@ JsonValue JsonDocument::from_xml_string(var::StringView xml,
 
 JsonValue JsonDocument::load_xml(StringView path, IsXmlFlat is_flat) {
   fs::File input(path, fs::OpenMode::read_only());
-  fs::DataFile data_file = fs::DataFile().reserve(input.size()).write(input);
-  String xml_string = String(data_file.data());
-  return from_xml_string(xml_string, is_flat);
+  fs::DataFile data_file(
+      std::move(fs::DataFile().reserve(input.size()).write(input)));
+  return from_xml_string(data_file.data().add_null_terminator(), is_flat);
 }
 #endif
 
-JsonValue JsonDocument::from_string(var::StringView json) {
+JsonValue JsonDocument::from_string(const StringView json) {
   JsonValue value;
-  value.m_value = JsonValue::api()->loadb(json.cstring(), json.length(),
+  value.m_value = JsonValue::api()->loadb(json.data(), json.length(),
                                           json_flags(), &m_error.m_value);
   return value;
 }
@@ -46,8 +45,7 @@ JsonValue JsonDocument::from_string(var::StringView json) {
 size_t JsonDocument::load_file_data(void *buffer, size_t buflen, void *data) {
   return reinterpret_cast<fs::File *>(data)
       ->read(buffer, buflen)
-      .status()
-      .value();
+      .return_value();
 }
 
 JsonValue JsonDocument::load(const fs::File &file) {
@@ -63,7 +61,7 @@ JsonDocument &JsonDocument::save(const JsonValue &value, var::StringView path) {
   result = JsonValue::api()->dump_file(value.m_value, path.argument().cstring(),
                                        flags());
 #else
-  fs::File f = fs::File::create(path, fs::File::IsOverwrite::yes);
+  fs::File f(fs::File::IsOverwrite::yes, path);
   result = JsonValue::api()->dumpfd(value.m_value, f.fileno(), json_flags());
 #endif
   API_SYSTEM_CALL("", result);

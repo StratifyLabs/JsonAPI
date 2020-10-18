@@ -41,7 +41,7 @@ class JsonString;
 
 typedef api::Api<jansson_api_t, JANSSON_API_REQUEST> JsonApi;
 
-class JsonValue : public api::Object {
+class JsonValue : public api::ExecutionContext {
 public:
 
   JsonValue();
@@ -84,7 +84,7 @@ public:
    */
   bool is_valid() const { return m_value != nullptr; }
 
-  enum types {
+  enum class Type {
     type_invalid = -1,
     type_object = JSON_OBJECT,
     type_array = JSON_ARRAY,
@@ -97,21 +97,21 @@ public:
     type_zero = JSON_NULL
   };
 
-  enum types type() const {
+  Type type() const {
     if (m_value) {
-      return (enum types)json_typeof(m_value);
+      return static_cast<Type>(json_typeof(m_value));
     }
-    return type_invalid;
+    return Type::type_invalid;
   }
 
-  bool is_object() const { return type() == type_object; }
-  bool is_array() const { return type() == type_array; }
-  bool is_string() const { return type() == type_string; }
-  bool is_real() const { return type() == type_real; }
-  bool is_integer() const { return type() == type_integer; }
-  bool is_true() const { return type() == type_true; }
-  bool is_false() const { return type() == type_false; }
-  bool is_null() const { return type() == type_zero; }
+  bool is_object() const { return type() == Type::type_object; }
+  bool is_array() const { return type() == Type::type_array; }
+  bool is_string() const { return type() == Type::type_string; }
+  bool is_real() const { return type() == Type::type_real; }
+  bool is_integer() const { return type() == Type::type_integer; }
+  bool is_true() const { return type() == Type::type_true; }
+  bool is_false() const { return type() == Type::type_false; }
+  bool is_null() const { return type() == Type::type_zero; }
   bool is_zero() const { return is_null(); }
 
   JsonValue &to_value() { return *this; }
@@ -121,31 +121,8 @@ public:
   const JsonArray &to_array() const;
   JsonArray &to_array();
 
-  /*! \details Converts the JSON value to string.
-   *
-   * @return A string representing the value
-   *
-   * The following types are converting to a string
-   * - STRING: as a string
-   * - INTEGER: as a formatted string
-   * - FLOAT: as a formatted string
-   * - TRUE: "true"
-   * - FALSE: "false"
-   * - NULL: "null"
-   * - OBJECT: "{object}"
-   * - ARRAY: "[array]"
-   * - INVALID: ""
-   *
-   * To convert a json object or array to a
-   * proper string using Json::stringify().
-   *
-   * \code
-   * JsonValue json_value; //can be any JSON type
-   * Json json = json_value;
-   * var::String as_string = json.stringify();
-   * \endcode
-   *
-   */
+  const char *to_cstring() const;
+
   var::String to_string() const;
 
   /*! \details Returns a float value of the JSON value.
@@ -156,7 +133,7 @@ public:
    * Otherwise, 0.0f is returned.
    *
    */
-  float to_float() const;
+  float to_real() const;
 
   /*! \details Returns an integer value of the JSON value.
    *
@@ -185,52 +162,7 @@ public:
    */
   bool to_bool() const;
 
-  // how to handle object creation -- explicitly or implicity so memory isn't
-  // leaked
-  /*
-   * For object creation, create objects on demand. When
-   *
-   * JsonObject object; //not valid yet
-   *
-   * object.insert("foo", "bar"); // object is created upon insert
-   *
-   * object.load("/path/to/json"); //object is now valid
-   *
-   * object.load("/path/to/other/json"); //previous object is freed before new
-   * one loaded
-   *
-   * //here other_object is not created but is just observing - if it was
-   * previously created - it is decremented JsonObject other_object =
-   * object.at("object").to_object();
-   *
-   *
-   */
-
-  /*! \details Assigns a string to the current JSON value.
-   *
-   * @param value The string to assign
-   *
-   * This method will not change the underlying JSON type. If a
-   * string value is assigned to a real type, the string
-   * will be converted to a real. Consider the following
-   * code snippet.
-   *
-   * \code
-   * JsonReal real_value(100.0f);
-   * real_value.assign("200.0"); //"200.0" is converted to 200.0f
-   * real_value.assign("Hello World"); //"Hello World" is converted to 0.0f
-   *
-   * JsonInteger integer_value(1);
-   *
-   * bool_value.assign("2"); //assigns 2
-   * bool_value.assign("3"); /assign 3
-   * bool_value.assign("Hello World"); //assigns 0
-   * \endcode
-   *
-   *
-   */
-  JsonValue &assign(var::StringView value);
-
+  JsonValue &assign(const char *value);
   JsonValue &assign(float value);
   JsonValue &assign(int value);
   JsonValue &assign(bool value);
@@ -269,7 +201,7 @@ private:
 
 class JsonKeyValue : public JsonValue {
 public:
-  JsonKeyValue(var::StringView key, const JsonValue &value)
+  JsonKeyValue(const char *key, const JsonValue &value)
       : JsonValue(value), m_key(key) {}
 
   JsonKeyValue &set_value(const JsonValue &a) {
@@ -285,7 +217,7 @@ private:
 
 template <class Derived> class JsonKeyValueList : public var::Vector<Derived> {
 public:
-  Derived at(var::StringView key) {
+  Derived at(const char *key) {
     for (const auto &item : *this) {
       if (item.key() == key) {
         return item;
@@ -314,7 +246,7 @@ public:
     var::StringList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, at(key)));
+      result.push_back(T(key, at(key.cstring())));
     }
     return result;
   }
@@ -323,7 +255,7 @@ public:
     var::StringList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, JsonValue().copy(at(key))));
+      result.push_back(T(key, JsonValue().copy(at(key.cstring()))));
     }
     return result;
   }
@@ -350,13 +282,13 @@ public:
    * exist in the object, it is created.
    *
    */
-  JsonObject &insert(var::StringView key, const JsonValue &value);
+  JsonObject &insert(const char *key, const JsonValue &value);
 
   JsonObject &insert(const JsonKeyValue &key_value) {
-    return insert(key_value.key(), key_value.value());
+    return insert(key_value.key().cstring(), key_value.value());
   }
 
-  JsonObject &insert(var::StringView key, bool value);
+  JsonObject &insert(const char *key, bool value);
 
   enum updates {
     update_none = 0x00,
@@ -374,7 +306,7 @@ public:
    * \return Zero on success (-1 is key was not found)
    *
    */
-  JsonObject &remove(var::StringView key);
+  JsonObject &remove(const char *key);
 
   /*!
    * \details Returns the number of key/value pairs in the object
@@ -407,7 +339,7 @@ public:
    * JsonValue is destroyed.
    *
    */
-  JsonValue at(var::StringView key) const;
+  JsonValue at(const char *key) const;
 
   var::StringList key_list() const;
   var::StringList keys() const { return key_list(); }
@@ -487,7 +419,9 @@ private:
 class JsonString : public JsonValue {
 public:
   JsonString();
-  explicit JsonString(var::StringView str);
+  explicit JsonString(const char *str);
+
+  const char *cstring() const;
 
 private:
   json_t *create() override;

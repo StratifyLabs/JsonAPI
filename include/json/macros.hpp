@@ -3,10 +3,10 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_STRING_WITH_KEY(c, k, v)                                   \
-  var::String get_##v() const {                                                \
-    return to_object().at(MCU_STRINGIFY(k)).to_string();                       \
+  const char *get_##v() const {                                                \
+    return to_object().at(MCU_STRINGIFY(k)).to_cstring();                      \
   }                                                                            \
-  c &set_##v(var::StringView value) {                                          \
+  c &set_##v(const char *value) {                                              \
     to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
     return *this;                                                              \
   }                                                                            \
@@ -50,9 +50,7 @@
 #define JSON_ACCESS_INTEGER(c, v) JSON_ACCESS_INTEGER_WITH_KEY(c, v, v)
 
 #define JSON_ACCESS_REAL_WITH_KEY(c, k, v)                                     \
-  float get_##v() const {                                                      \
-    return to_object().at(MCU_STRINGIFY(k)).to_float();                        \
-  }                                                                            \
+  float get_##v() const { return to_object().at(MCU_STRINGIFY(k)).to_real(); } \
   c &set_##v(float value) {                                                    \
     to_object().insert(MCU_STRINGIFY(k), json::JsonReal(value));               \
     return *this;                                                              \

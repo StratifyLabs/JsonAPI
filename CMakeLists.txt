@@ -33,10 +33,6 @@ target_compile_definitions(${RELEASE_TARGET}
 	PRIVATE
 	)
 
-target_compile_options(${RELEASE_TARGET}
-	PRIVATE
-	-Os
-	)
 
 target_include_directories(${RELEASE_TARGET}
 	PUBLIC
@@ -47,16 +43,29 @@ target_include_directories(${RELEASE_TARGET}
 
 set(LIBRARIES FsAPI ChronoAPI VarAPI)
 
-option(BUILD_DEBUG "Build debug version of library" OFF)
-if(BUILD_DEBUG)
 sos_sdk_library_target(DEBUG ${LOCAL_NAME} "${LIB_OPTION}" debug ${SOS_ARCH})
 add_library(${DEBUG_TARGET} STATIC)
 sos_sdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
-sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH} "")
+sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH} "${LIBRARIES}")
+
+if(SOS_IS_LINK)
+	sos_sdk_library_target(COVERAGE ${LOCAL_NAME} "${LIB_OPTION}" coverage ${SOS_ARCH})
+	add_library(${COVERAGE_TARGET} STATIC)
+	sos_sdk_copy_target(${RELEASE_TARGET} ${COVERAGE_TARGET})
+	sos_sdk_library_add_arch_targets("${COVERAGE_OPTIONS}" ${SOS_ARCH} "${LIBRARIES}")
 endif()
 
-#sos_sdk_library("${RELEASE_OPTIONS}")
 sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "${LIBRARIES}")
+
+target_compile_options(${RELEASE_TARGET}
+	PRIVATE
+	-Os
+	)
+
+target_compile_options(${DEBUG_TARGET}
+	PRIVATE
+	-Os
+	)
 
 install(DIRECTORY include/ DESTINATION include/${LOCAL_NAME} PATTERN CMakelists.txt EXCLUDE)
 

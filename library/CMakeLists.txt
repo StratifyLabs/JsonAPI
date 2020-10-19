@@ -1,12 +1,3 @@
-cmake_minimum_required (VERSION 3.12)
-
-if(NOT SOS_SDK_PATH)
-	set(SOS_SDK_PATH $ENV{SOS_SDK_PATH})
-endif()
-
-set(CMAKE_MODULE_PATH ${SOS_SDK_PATH}/Tools/gcc/cmake)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_MODULE_PATH}/sos-toolchain.cmake)
-include(sos-sdk)
 
 
 sos_sdk_add_subdirectory(PRIVATE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -24,6 +15,7 @@ target_sources(${RELEASE_TARGET}
 	PRIVATE
 	${INTERFACE_SOURCES}
 	${PRIVATE_SOURCES}
+	${CMAKE_CURRENT_SOURCE_DIR}/JsonAPI.cmake
 	)
 
 target_compile_definitions(${RELEASE_TARGET}
@@ -68,5 +60,10 @@ target_compile_options(${DEBUG_TARGET}
 	-Os
 	)
 
-install(DIRECTORY include/ DESTINATION include/${LOCAL_NAME} PATTERN CMakelists.txt EXCLUDE)
+install(DIRECTORY include/
+	DESTINATION include/${LOCAL_NAME}
+	PATTERN CMakelists.txt EXCLUDE)
+
+install(FILES JsonAPI.cmake
+	DESTINATION cmake/targets)
 

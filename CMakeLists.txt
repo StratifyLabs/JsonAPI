@@ -11,6 +11,9 @@ include(sos-sdk)
 set(LOCAL_NAME JsonAPI)
 project(${LOCAL_NAME} CXX)
 
+add_subdirectory(tests tests)
+add_subdirectory(jansson jansson)
+
 sos_sdk_add_subdirectory(PRIVATE_SOURCES ${CMAKE_SOURCE_DIR}/src)
 sos_sdk_add_subdirectory(INTERFACE_SOURCES include)
 

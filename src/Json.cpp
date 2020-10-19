@@ -39,12 +39,12 @@ printer::Printer &printer::print_value(Printer &printer,
                                        const json::JsonValue &a,
                                        var::StringView key) {
   if (a.is_object()) {
-    var::StringList key_list = a.to_object().keys();
+    json::JsonValue::KeyList key_list = a.to_object().key_list();
     if (!key.is_empty()) {
       printer.print_open_object(printer.verbose_level(), key);
     }
     for (const auto &subkey : key_list) {
-      const json::JsonValue &entry = a.to_object().at(subkey.cstring());
+      const json::JsonValue &entry = a.to_object().at(subkey);
       print_value(printer, entry, subkey);
     }
     if (!key.is_empty()) {
@@ -454,14 +454,14 @@ JsonObject &JsonObject::clear() {
   return *this;
 }
 
-var::StringList JsonObject::key_list() const {
+JsonObject::KeyList JsonObject::key_list() const {
   const char *key;
-  var::StringList result;
+  KeyList result;
 
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
        key = api()->object_iter_key(
          api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
-    result.push_back(var::String(key));
+    result.push_back(key);
   }
 
   return result;

@@ -169,6 +169,8 @@ public:
 
   enum class IsDeepCopy { no, yes };
 
+  using KeyList = var::Vector<const char *>;
+
   JsonValue &
   copy(const JsonValue &value, IsDeepCopy deep_copy = IsDeepCopy::yes);
 
@@ -212,7 +214,7 @@ public:
   JsonValue get_value() const { return JsonValue(*this); }
 
 private:
-  API_READ_ACCESS_COMPOUND(JsonKeyValue, var::String, key);
+  API_READ_ACCESS_FUNDAMENTAL(JsonKeyValue, const char *, key, nullptr);
 };
 
 template <class Derived> class JsonKeyValueList : public var::Vector<Derived> {
@@ -243,19 +245,19 @@ public:
   JsonObject &operator=(const JsonObject &value);
 
   template <class T> JsonKeyValueList<T> construct_key_list() {
-    var::StringList list = key_list();
+    KeyList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, at(key.cstring())));
+      result.push_back(T(key, at(key)));
     }
     return result;
   }
 
   template <class T> JsonKeyValueList<T> construct_key_list_copy() {
-    var::StringList list = key_list();
+    KeyList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, JsonValue().copy(at(key.cstring()))));
+      result.push_back(T(key, JsonValue().copy(at(key))));
     }
     return result;
   }
@@ -285,7 +287,7 @@ public:
   JsonObject &insert(const char *key, const JsonValue &value);
 
   JsonObject &insert(const JsonKeyValue &key_value) {
-    return insert(key_value.key().cstring(), key_value.value());
+    return insert(key_value.key(), key_value.value());
   }
 
   JsonObject &insert(const char *key, bool value);
@@ -341,8 +343,7 @@ public:
    */
   JsonValue at(const char *key) const;
 
-  var::StringList key_list() const;
-  var::StringList keys() const { return key_list(); }
+  KeyList key_list() const;
 
 private:
   json_t *create() override;

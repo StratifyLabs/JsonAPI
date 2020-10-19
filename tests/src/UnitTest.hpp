@@ -18,6 +18,10 @@ public:
 
   bool execute_class_api_case() {
 
+    if (!array_case()) {
+      return false;
+    }
+
     if (!object_case()) {
       return false;
     }
@@ -29,6 +33,21 @@ public:
     if (!document_case()) {
       return false;
     }
+
+    return true;
+  }
+
+  bool array_case() {
+
+    JsonArray array = JsonArray()
+                          .append(JsonString("string"))
+                          .append(JsonInteger(5))
+                          .append(JsonReal(2.5f))
+                          .append(JsonTrue())
+                          .append(JsonFalse())
+                          .append(JsonNull());
+
+    TEST_ASSERT(array.insert(1, JsonString("at1")).at(1).to_string() == "at1");
 
     return true;
   }
@@ -138,6 +157,23 @@ public:
       JsonObject::KeyList key_list = object.key_list();
 
       TEST_ASSERT(key_list.count() == 12);
+      TEST_ASSERT(key_list.find(CString("string")) == CString("string"));
+      TEST_ASSERT(key_list.find(CString("integerString")) ==
+                  CString("integerString"));
+      TEST_ASSERT(key_list.find(CString("integer")) == CString("integer"));
+      TEST_ASSERT(key_list.find(CString("integerZero")) ==
+                  CString("integerZero"));
+      TEST_ASSERT(key_list.find(CString("real")) == CString("real"));
+
+      TEST_ASSERT(key_list.find(CString("realString")) ==
+                  CString("realString"));
+      TEST_ASSERT(key_list.find(CString("realZero")) == CString("realZero"));
+      TEST_ASSERT(key_list.find(CString("true")) == CString("true"));
+      TEST_ASSERT(key_list.find(CString("false")) == CString("false"));
+      TEST_ASSERT(key_list.find(CString("null")) == CString("null"));
+      TEST_ASSERT(key_list.find(CString("trueString")) ==
+                  CString("trueString"));
+      TEST_ASSERT(key_list.find(CString("array")) == CString("array"));
 
       printer().object("object", object);
 

@@ -12,6 +12,7 @@ include(targets/StratifyAPI)
 
 set(LOCAL_NAME JsonAPI)
 project(${LOCAL_NAME} CXX)
+include(CTest)
 
 add_subdirectory(tests tests)
 add_subdirectory(jansson jansson)

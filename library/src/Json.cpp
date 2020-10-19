@@ -42,7 +42,7 @@ printer::Printer &printer::print_value(Printer &printer,
     }
     for (const auto &subkey : key_list) {
       const json::JsonValue &entry = a.to_object().at(subkey);
-      print_value(printer, entry, subkey);
+      print_value(printer, entry, subkey.cstring());
     }
     if (!key.is_empty()) {
       printer.print_close_object();
@@ -198,14 +198,17 @@ int JsonValue::create_if_not_valid() {
   return 0;
 }
 
-JsonValue &JsonValue::assign(const char *value) {
+JsonValue &JsonValue::assign(const var::StringView value) {
   API_RETURN_VALUE_IF_ERROR(*this);
   if (is_string()) {
-    API_SYSTEM_CALL("", api()->string_set(m_value, value));
+    API_SYSTEM_CALL("",
+                    api()->string_setn(m_value, value.data(), value.length()));
   } else if (is_real()) {
-    API_SYSTEM_CALL("", api()->real_set(m_value, ::atoff(value)));
+    API_SYSTEM_CALL(
+        "", api()->real_set(m_value, var::NumberString(value).to_float()));
   } else if (is_integer()) {
-    API_SYSTEM_CALL("", api()->integer_set(m_value, ::atoi(value)));
+    API_SYSTEM_CALL(
+        "", api()->integer_set(m_value, var::NumberString(value).to_integer()));
   } else if (is_true() || is_false()) {
     if (var::StringView(value) == "true") {
       *this = JsonTrue();
@@ -213,7 +216,6 @@ JsonValue &JsonValue::assign(const char *value) {
       *this = JsonFalse();
     }
   }
-
   return *this;
 }
 
@@ -442,12 +444,18 @@ JsonObject &JsonObject::clear() {
 
 JsonObject::KeyList JsonObject::key_list() const {
   const char *key;
-  KeyList result;
-
+  u32 count = 0;
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
        key = api()->object_iter_key(
-         api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
-    result.push_back(key);
+           api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
+    count++;
+  }
+
+  KeyList result = KeyList().reserve(count);
+  for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
+       key = api()->object_iter_key(
+           api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
+    result.push_back(var::CString(key));
   }
 
   return result;
@@ -474,6 +482,20 @@ JsonValue JsonArray::at(size_t position) const {
 }
 
 JsonArray::JsonArray(const var::StringList &list) {
+  m_value = create();
+  for (const auto &entry : list) {
+    append(JsonString(entry.cstring()));
+  }
+}
+
+JsonArray::JsonArray(const var::StringViewList &list) {
+  m_value = create();
+  for (const auto &entry : list) {
+    append(JsonString(entry));
+  }
+}
+
+JsonArray::JsonArray(const var::Vector<CString> &list) {
   m_value = create();
   for (const auto &entry : list) {
     append(JsonString(entry.cstring()));
@@ -537,16 +559,25 @@ JsonArray &JsonArray::clear() {
   return *this;
 }
 
-var::StringList JsonArray::string_list() {
-  var::Vector<var::String> result;
+var::Vector<var::CString> JsonArray::cstring_list() const {
+  var::Vector<var::CString> result;
   result.reserve(count());
   for (u32 i = 0; i < count(); i++) {
-    result.push_back(std::move(at(i).to_string()));
+    result.push_back(var::CString(at(i).to_cstring()));
   }
   return result;
 }
 
-var::Vector<s32> JsonArray::integer_list() {
+var::StringViewList JsonArray::string_view_list() const {
+  var::StringViewList result;
+  result.reserve(count());
+  for (u32 i = 0; i < count(); i++) {
+    result.push_back(var::StringView(at(i).to_cstring()));
+  }
+  return result;
+}
+
+var::Vector<s32> JsonArray::integer_list() const {
   var::Vector<s32> result;
   result.reserve(count());
   for (u32 i = 0; i < count(); i++) {
@@ -555,7 +586,7 @@ var::Vector<s32> JsonArray::integer_list() {
   return result;
 }
 
-var::Vector<float> JsonArray::float_list() {
+var::Vector<float> JsonArray::float_list() const {
   var::Vector<float> result;
   result.reserve(count());
   for (u32 i = 0; i < count(); i++) {
@@ -564,7 +595,7 @@ var::Vector<float> JsonArray::float_list() {
   return result;
 }
 
-var::Vector<bool> JsonArray::bool_list() {
+var::Vector<bool> JsonArray::bool_list() const {
   var::Vector<bool> result;
   result.reserve(count());
   for (u32 i = 0; i < count(); i++) {
@@ -578,6 +609,12 @@ JsonString::JsonString() { m_value = create(); }
 JsonString::JsonString(const char *str) {
   API_RETURN_IF_ERROR();
   m_value = API_SYSTEM_CALL_NULL("", api()->create_string(str));
+}
+
+JsonString::JsonString(const var::StringView str) {
+  API_RETURN_IF_ERROR();
+  m_value =
+      API_SYSTEM_CALL_NULL("", api()->create_stringn(str.data(), str.length()));
 }
 
 const char *JsonString::cstring() const { return api()->string_value(m_value); }

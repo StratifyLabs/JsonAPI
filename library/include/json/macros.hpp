@@ -3,8 +3,11 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_STRING_WITH_KEY(c, k, v)                                   \
-  const char *get_##v() const {                                                \
+  const char *get_##v##_cstring() const {                                      \
     return to_object().at(MCU_STRINGIFY(k)).to_cstring();                      \
+  }                                                                            \
+  var::StringView get_##v() const {                                            \
+    return var::StringView(to_object().at(MCU_STRINGIFY(k)).to_cstring());     \
   }                                                                            \
   c &set_##v(const char *value) {                                              \
     to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
@@ -156,10 +159,18 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_STRING_ARRAY_WITH_KEY(c, k, v)                             \
-  var::StringList get_##v() const {                                            \
-    return to_object().at(MCU_STRINGIFY(k)).to_array().string_list();          \
+  var::StringViewList get_##v() const {                                        \
+    return to_object().at(MCU_STRINGIFY(k)).to_array().string_view_list();     \
+  }                                                                            \
+  c &set_##v(const var::StringViewList &a) {                                   \
+    to_object().insert(MCU_STRINGIFY(k), json::JsonArray(a));                  \
+    return *this;                                                              \
   }                                                                            \
   c &set_##v(const var::StringList &a) {                                       \
+    to_object().insert(MCU_STRINGIFY(k), json::JsonArray(a));                  \
+    return *this;                                                              \
+  }                                                                            \
+  c &set_##v(const var::Vector<var::CString> &a) {                             \
     to_object().insert(MCU_STRINGIFY(k), json::JsonArray(a));                  \
     return *this;                                                              \
   }                                                                            \

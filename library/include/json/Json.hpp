@@ -155,11 +155,14 @@ public:
    */
   bool to_bool() const;
 
-  JsonValue &assign(const char *value);
+  JsonValue &assign(const var::StringView value);
+  JsonValue &assign(const char *value) {
+    return assign(var::StringView(value));
+  }
 
   enum class IsDeepCopy { no, yes };
 
-  using KeyList = var::Vector<const char *>;
+  using KeyList = var::Vector<var::CString>;
 
   JsonValue &
   copy(const JsonValue &value, IsDeepCopy deep_copy = IsDeepCopy::yes);
@@ -199,6 +202,7 @@ public:
     add_reference(a.m_value);
     return *this;
   }
+
   const JsonValue &value() const { return *this; }
   JsonValue get_value() const { return JsonValue(*this); }
 
@@ -237,7 +241,7 @@ public:
     KeyList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, at(key)));
+      result.push_back(T(key, at(key.cstring())));
     }
     return result;
   }
@@ -332,6 +336,8 @@ public:
   JsonArray &operator=(const JsonArray &value);
 
   explicit JsonArray(const var::StringList &list);
+  explicit JsonArray(const var::StringViewList &list);
+  explicit JsonArray(const var::Vector<var::CString> &list);
   explicit JsonArray(const var::Vector<float> &list);
   explicit JsonArray(const var::Vector<u32> &list);
   explicit JsonArray(const var::Vector<s32> &list);
@@ -384,10 +390,11 @@ public:
   JsonArray &remove(size_t position);
   JsonArray &clear();
 
-  var::StringList string_list();
-  var::Vector<s32> integer_list();
-  var::Vector<float> float_list();
-  var::Vector<bool> bool_list();
+  var::StringViewList string_view_list() const;
+  var::Vector<var::CString> cstring_list() const;
+  var::Vector<s32> integer_list() const;
+  var::Vector<float> float_list() const;
+  var::Vector<bool> bool_list() const;
 
 private:
   json_t *create() override;
@@ -397,6 +404,7 @@ class JsonString : public JsonValue {
 public:
   JsonString();
   explicit JsonString(const char *str);
+  explicit JsonString(const var::StringView str);
 
   const char *cstring() const;
 

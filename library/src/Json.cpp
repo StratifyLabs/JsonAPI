@@ -14,9 +14,6 @@
 #include "json/Json.hpp"
 
 #if defined __link
-#if !defined __android
-#include "xml2json.hpp"
-#endif
 #define atoff atof
 #endif
 
@@ -63,13 +60,12 @@ printer::Printer &printer::print_value(Printer &printer,
     if (!key.is_empty()) {
       printer.print_close_array();
     }
+  } else if (a.is_integer()) {
+    printer.key(key, var::NumberString(a.to_integer()));
+  } else if (a.is_real()) {
+    printer.key(key, var::NumberString(a.to_real()));
   } else {
-    if (key.is_empty()) {
-      printer.key(var::StringView().set_null(),
-                  var::StringView(a.to_cstring()));
-    } else {
-      printer.key(key, var::StringView(a.to_cstring()));
-    }
+    printer.key(key, var::StringView(a.to_cstring()));
   }
   return printer;
 }
@@ -129,10 +125,6 @@ int JsonValue::translate_json_error(int json_result) {
   return 0;
 }
 
-#if USE_FS
-JsonValue::JsonValue(fs::File::Path path) { *this = JsonDocument().load(path); }
-#endif
-
 JsonValue::JsonValue(json_t *value) {
   if (api().is_valid() == false) {
     exit_fatal("json api missing");
@@ -182,16 +174,16 @@ JsonValue::~JsonValue() {
 }
 
 const JsonObject &JsonValue::to_object() const {
-  return (const JsonObject &)*this;
+  return static_cast<const JsonObject &>(*this);
 }
 
-JsonObject &JsonValue::to_object() { return (JsonObject &)*this; }
+JsonObject &JsonValue::to_object() { return static_cast<JsonObject &>(*this); }
 
 const JsonArray &JsonValue::to_array() const {
-  return (const JsonArray &)*this;
+  return static_cast<const JsonArray &>(*this);
 }
 
-JsonArray &JsonValue::to_array() { return (JsonArray &)*this; }
+JsonArray &JsonValue::to_array() { return static_cast<JsonArray &>(*this); }
 
 int JsonValue::create_if_not_valid() {
   API_RETURN_VALUE_IF_ERROR(-1);
@@ -224,12 +216,6 @@ JsonValue &JsonValue::assign(const char *value) {
 
   return *this;
 }
-
-JsonValue &JsonValue::assign(float value) { return *this; }
-
-JsonValue &JsonValue::assign(int value) { return *this; }
-
-JsonValue &JsonValue::assign(bool value) { return *this; }
 
 JsonValue &JsonValue::copy(const JsonValue &value, IsDeepCopy is_deep) {
   api()->decref(m_value);
@@ -424,14 +410,14 @@ JsonObject &JsonObject::insert(const char *key, const JsonValue &value) {
   return *this;
 }
 
-JsonObject &JsonObject::update(const JsonValue &value, enum updates o_flags) {
+JsonObject &JsonObject::update(const JsonValue &value, UpdateFlags o_flags) {
   API_RETURN_VALUE_IF_ERROR(*this);
-  if (o_flags & update_existing) {
+  if (o_flags & UpdateFlags::existing) {
     API_SYSTEM_CALL("", api()->object_update_existing(m_value, value.m_value));
     return *this;
   }
 
-  if (o_flags & update_missing) {
+  if (o_flags & UpdateFlags::missing) {
     API_SYSTEM_CALL("", api()->object_update_missing(m_value, value.m_value));
     return *this;
   }
@@ -603,25 +589,11 @@ JsonReal::JsonReal(float value) {
   m_value = API_SYSTEM_CALL_NULL("", api()->create_real(value));
 }
 
-JsonReal &JsonReal::operator=(float a) {
-  if (create_if_not_valid() == 0) {
-    api()->real_set(m_value, a);
-  }
-  return *this;
-}
-
 JsonInteger::JsonInteger() { m_value = create(); }
 
 JsonInteger::JsonInteger(int value) {
   API_RETURN_IF_ERROR();
   m_value = API_SYSTEM_CALL_NULL("", api()->create_integer(value));
-}
-
-JsonInteger &JsonInteger::operator=(int a) {
-  if (create_if_not_valid() == 0) {
-    api()->integer_set(m_value, a);
-  }
-  return *this;
 }
 
 JsonNull::JsonNull() { m_value = create(); }

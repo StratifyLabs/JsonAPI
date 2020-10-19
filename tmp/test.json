@@ -1,0 +1,21 @@
+{
+   "string": "string",
+   "integerString": "100",
+   "integer": 10,
+   "integerZero": 0,
+   "real": 2.2000000476837158,
+   "realString": "2.2f",
+   "realZero": 0.0,
+   "true": true,
+   "false": false,
+   "null": null,
+   "trueString": "true",
+   "array": [
+      "string",
+      5,
+      2.5,
+      true,
+      false,
+      null
+   ]
+}

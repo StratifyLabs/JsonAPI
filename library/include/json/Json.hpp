@@ -45,22 +45,17 @@ class JsonValue : public api::ExecutionContext {
 public:
 
   JsonValue();
-
   JsonValue(json_t *value);
   JsonValue(const JsonValue &value);
-
   JsonValue &operator=(const JsonValue &value);
-  ~JsonValue();
-
   JsonValue(JsonValue &&a);
   JsonValue &operator=(JsonValue &&a);
+  ~JsonValue();
 
   operator const JsonObject &() const { return to_object(); }
-
   operator JsonObject &() { return to_object(); }
 
   operator const JsonArray &() const { return to_array(); }
-
   operator JsonArray &() { return to_array(); }
 
   /*! \details Returns true if the value is valid.
@@ -85,34 +80,32 @@ public:
   bool is_valid() const { return m_value != nullptr; }
 
   enum class Type {
-    type_invalid = -1,
-    type_object = JSON_OBJECT,
-    type_array = JSON_ARRAY,
-    type_string = JSON_STRING,
-    type_real = JSON_REAL,
-    type_integer = JSON_INTEGER,
-    type_true = JSON_TRUE,
-    type_false = JSON_FALSE,
-    type_null = JSON_NULL,
-    type_zero = JSON_NULL
+    invalid = -1,
+    object = JSON_OBJECT,
+    array = JSON_ARRAY,
+    string = JSON_STRING,
+    real = JSON_REAL,
+    integer = JSON_INTEGER,
+    true_ = JSON_TRUE,
+    false_ = JSON_FALSE,
+    null = JSON_NULL
   };
 
   Type type() const {
     if (m_value) {
       return static_cast<Type>(json_typeof(m_value));
     }
-    return Type::type_invalid;
+    return Type::invalid;
   }
 
-  bool is_object() const { return type() == Type::type_object; }
-  bool is_array() const { return type() == Type::type_array; }
-  bool is_string() const { return type() == Type::type_string; }
-  bool is_real() const { return type() == Type::type_real; }
-  bool is_integer() const { return type() == Type::type_integer; }
-  bool is_true() const { return type() == Type::type_true; }
-  bool is_false() const { return type() == Type::type_false; }
-  bool is_null() const { return type() == Type::type_zero; }
-  bool is_zero() const { return is_null(); }
+  bool is_object() const { return type() == Type::object; }
+  bool is_array() const { return type() == Type::array; }
+  bool is_string() const { return type() == Type::string; }
+  bool is_real() const { return type() == Type::real; }
+  bool is_integer() const { return type() == Type::integer; }
+  bool is_true() const { return type() == Type::true_; }
+  bool is_false() const { return type() == Type::false_; }
+  bool is_null() const { return type() == Type::null; }
 
   JsonValue &to_value() { return *this; }
   const JsonValue &to_value() const { return *this; }
@@ -163,9 +156,6 @@ public:
   bool to_bool() const;
 
   JsonValue &assign(const char *value);
-  JsonValue &assign(float value);
-  JsonValue &assign(int value);
-  JsonValue &assign(bool value);
 
   enum class IsDeepCopy { no, yes };
 
@@ -180,7 +170,6 @@ protected:
   int create_if_not_valid();
   virtual json_t *create() { return 0; }
 
-  static void exit_fatal(const char *message);
   static int translate_json_error(int json_error);
 
 private:
@@ -269,21 +258,8 @@ public:
     }
   }
 
-  /*! \details Returns true if the object is empty. */
   bool is_empty() const { return count() == 0; }
 
-  /*!
-   * \details Inserts the key value pair into the object.
-   *
-   * \param key The UTF-8 key
-   * \param value The value of the key
-   * \return Zero on success
-   *
-   * If \a key already exists in the object, it is
-   * updated to the new value. If \a key does not
-   * exist in the object, it is created.
-   *
-   */
   JsonObject &insert(const char *key, const JsonValue &value);
 
   JsonObject &insert(const JsonKeyValue &key_value) {
@@ -292,15 +268,15 @@ public:
 
   JsonObject &insert(const char *key, bool value);
 
-  enum updates {
-    update_none = 0x00,
-    update_existing = 0x01,
-    update_missing = 0x02,
-    update_missing_and_existing = 0x03
+  enum class UpdateFlags {
+    null = 0x00,
+    existing = 0x01,
+    missing = 0x02,
+    missing_and_existing = 0x03
   };
 
-  JsonObject &
-  update(const JsonValue &value, enum updates o_flags = update_none);
+  JsonObject &update(const JsonValue &value,
+                     UpdateFlags o_flags = UpdateFlags::null);
 
   /*!
    * \details Removes the specified key from the object.
@@ -432,7 +408,6 @@ class JsonReal : public JsonValue {
 public:
   JsonReal();
   explicit JsonReal(float value);
-  JsonReal &operator=(float a);
 
 private:
   json_t *create() override;
@@ -442,7 +417,6 @@ class JsonInteger : public JsonValue {
 public:
   JsonInteger();
   explicit JsonInteger(int value);
-  JsonInteger &operator=(int a);
 
 private:
   json_t *create() override;
@@ -471,6 +445,8 @@ public:
 private:
   json_t *create() override;
 };
+
+API_OR_NAMED_FLAGS_OPERATOR(JsonObject, UpdateFlags)
 
 } // namespace json
 

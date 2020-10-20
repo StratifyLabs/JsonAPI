@@ -13,6 +13,14 @@
     to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
     return *this;                                                              \
   }                                                                            \
+  c &set_##v(const var::StringView value) {                                    \
+    to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
+    return *this;                                                              \
+  }                                                                            \
+  c &set_##v(const var::String &value) {                                       \
+    to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
+    return *this;                                                              \
+  }                                                                            \
   c &remove_##v() {                                                            \
     to_object().remove(MCU_STRINGIFY(k));                                      \
     return *this;                                                              \

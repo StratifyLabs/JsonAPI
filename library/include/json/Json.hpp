@@ -405,6 +405,7 @@ public:
   JsonString();
   explicit JsonString(const char *str);
   explicit JsonString(const var::StringView str);
+  explicit JsonString(const var::String &str);
 
   const char *cstring() const;
 

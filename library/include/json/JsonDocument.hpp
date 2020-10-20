@@ -67,13 +67,6 @@ public:
 #endif
 
   /*!
-   * \details Loads a JSON value from an already open file
-   * \param file A reference to the file containing JSON
-   * \return Zero on success
-   */
-  JsonValue load(var::StringView path);
-
-  /*!
    * \details Loads a JSON value from a data object
    * \param data A reference to the data object containing the JSON
    * \return
@@ -84,11 +77,6 @@ public:
 
   var::String stringify(const JsonValue &value) const {
     return to_string(value);
-  }
-
-  JsonDocument &save(const JsonValue &value, var::StringView path);
-  JsonDocument &save(const JsonValue &value, fs::Path path) {
-    return save(value, path.path());
   }
 
   JsonDocument &save(const JsonValue &value, const fs::File &file);

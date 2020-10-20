@@ -25,9 +25,9 @@ printer::Printer &printer::operator<<(Printer &printer,
 printer::Printer &printer::operator<<(Printer &printer,
                                       const json::JsonError &a) {
   printer.key("text", a.text());
-  printer.key("line", var::NumberString(a.line()));
-  printer.key("column", var::NumberString(a.column()));
-  printer.key("position", var::NumberString(a.position()));
+  printer.key("line", var::NumberString(a.line()).string_view());
+  printer.key("column", var::NumberString(a.column()).string_view());
+  printer.key("position", var::NumberString(a.position()).string_view());
   printer.key("source", a.source());
   return printer;
 }
@@ -42,7 +42,7 @@ printer::Printer &printer::print_value(Printer &printer,
     }
     for (const auto &subkey : key_list) {
       const json::JsonValue &entry = a.to_object().at(subkey);
-      print_value(printer, entry, subkey.cstring());
+      print_value(printer, entry, subkey);
     }
     if (!key.is_empty()) {
       printer.print_close_object();
@@ -61,9 +61,9 @@ printer::Printer &printer::print_value(Printer &printer,
       printer.print_close_array();
     }
   } else if (a.is_integer()) {
-    printer.key(key, var::NumberString(a.to_integer()));
+    printer.key(key, var::NumberString(a.to_integer()).string_view());
   } else if (a.is_real()) {
-    printer.key(key, var::NumberString(a.to_real()));
+    printer.key(key, var::NumberString(a.to_real()).string_view());
   } else {
     printer.key(key, var::StringView(a.to_cstring()));
   }
@@ -615,6 +615,13 @@ JsonString::JsonString(const var::StringView str) {
   API_RETURN_IF_ERROR();
   m_value =
       API_SYSTEM_CALL_NULL("", api()->create_stringn(str.data(), str.length()));
+}
+
+JsonString::JsonString(const var::String &str) {
+  API_RETURN_IF_ERROR();
+  m_value = API_SYSTEM_CALL_NULL(
+    "",
+    api()->create_stringn(str.cstring(), str.length()));
 }
 
 const char *JsonString::cstring() const { return api()->string_value(m_value); }

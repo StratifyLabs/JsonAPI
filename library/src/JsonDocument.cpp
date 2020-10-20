@@ -10,13 +10,6 @@
 using namespace var;
 using namespace json;
 
-JsonValue JsonDocument::load(StringView path) {
-  JsonValue value;
-  value.m_value = JsonValue::api()->load_file(fs::Path(path).cstring(),
-                                              json_flags(), &m_error.m_value);
-  return value;
-}
-
 #if defined __link
 JsonValue JsonDocument::from_xml_string(const char *xml, IsXmlFlat is_flat) {
 #if !defined __android
@@ -53,19 +46,6 @@ JsonValue JsonDocument::load(const fs::File &file) {
   value.m_value =
       JsonValue::api()->loadfd(file.fileno(), json_flags(), &m_error.m_value);
   return value;
-}
-
-JsonDocument &JsonDocument::save(const JsonValue &value, var::StringView path) {
-  int result;
-#if defined __win32
-  result = JsonValue::api()->dump_file(value.m_value, path.argument().cstring(),
-                                       flags());
-#else
-  fs::File f(fs::File::IsOverwrite::yes, path);
-  result = JsonValue::api()->dumpfd(value.m_value, f.fileno(), json_flags());
-#endif
-  API_SYSTEM_CALL("", result);
-  return *this;
 }
 
 var::String JsonDocument::to_string(const JsonValue &value) const {

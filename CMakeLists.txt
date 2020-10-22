@@ -10,8 +10,7 @@ include(sos-sdk)
 
 include(targets/StratifyAPI)
 
-set(LOCAL_NAME JsonAPI)
-project(${LOCAL_NAME} CXX)
+project(JsonAPI CXX)
 include(CTest)
 
 add_subdirectory(tests tests)

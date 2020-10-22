@@ -221,10 +221,11 @@ public:
     return Derived("", JsonValue());
   }
 
-  var::StringList get_key_list() const {
-    var::StringList result;
-    for (const auto &item : *this) {
-      result.push_back(item.key());
+  JsonValue::KeyList get_key_list() const {
+    JsonValue::KeyList result;
+    result.reserve(this->count());
+    for (const auto item : *this) {
+      result.push_back(var::CString(item.key()));
     }
     return result;
   }

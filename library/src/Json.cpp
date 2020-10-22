@@ -9,6 +9,7 @@
 
 //#include "sys/Sys.hpp"
 #include <printer/Printer.hpp>
+#include <var/StackString.hpp>
 #include <var/Tokenizer.hpp>
 
 #include "json/Json.hpp"

@@ -395,21 +395,24 @@ json_t *JsonNull::create() {
   return API_SYSTEM_CALL_NULL("", api()->create_null());
 }
 
-JsonObject &JsonObject::insert(const char *key, bool value) {
+JsonObject &JsonObject::insert(const var::StringView key, bool value) {
 
   if (value) {
-    return insert(key, JsonTrue());
+    return insert(Key(key).cstring, JsonTrue());
   }
 
-  return insert(key, JsonFalse());
+  return insert(Key(key).cstring, JsonFalse());
 }
 
-JsonObject &JsonObject::insert(const char *key, const JsonValue &value) {
+JsonObject &
+JsonObject::insert(const var::StringView key, const JsonValue &value) {
   if (create_if_not_valid() < 0) {
     return *this;
   }
 
-  API_SYSTEM_CALL("", api()->object_set(m_value, key, value.m_value));
+  API_SYSTEM_CALL(
+    "",
+    api()->object_set(m_value, Key(key).cstring, value.m_value));
   return *this;
 }
 
@@ -429,9 +432,9 @@ JsonObject &JsonObject::update(const JsonValue &value, UpdateFlags o_flags) {
   return *this;
 }
 
-JsonObject &JsonObject::remove(const char *key) {
+JsonObject &JsonObject::remove(const var::StringView key) {
   API_RETURN_VALUE_IF_ERROR(*this);
-  API_SYSTEM_CALL("", api()->object_del(m_value, key));
+  API_SYSTEM_CALL("", api()->object_del(m_value, Key(key).cstring));
   return *this;
 }
 
@@ -456,14 +459,14 @@ JsonObject::KeyList JsonObject::key_list() const {
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
        key = api()->object_iter_key(
            api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
-    result.push_back(var::CString(key));
+    result.push_back(key);
   }
 
   return result;
 }
 
-JsonValue JsonObject::at(const char *key) const {
-  return JsonValue(api()->object_get(m_value, key));
+JsonValue JsonObject::at(const var::StringView key) const {
+  return JsonValue(api()->object_get(m_value, Key(key).cstring));
 }
 
 JsonArray::JsonArray() { m_value = create(); }
@@ -493,13 +496,6 @@ JsonArray::JsonArray(const var::StringViewList &list) {
   m_value = create();
   for (const auto &entry : list) {
     append(JsonString(entry));
-  }
-}
-
-JsonArray::JsonArray(const var::Vector<CString> &list) {
-  m_value = create();
-  for (const auto &entry : list) {
-    append(JsonString(entry.cstring()));
   }
 }
 
@@ -558,15 +554,6 @@ JsonArray &JsonArray::clear() {
   API_RETURN_VALUE_IF_ERROR(*this);
   API_SYSTEM_CALL("", api()->array_clear(m_value));
   return *this;
-}
-
-var::Vector<var::CString> JsonArray::cstring_list() const {
-  var::Vector<var::CString> result;
-  result.reserve(count());
-  for (u32 i = 0; i < count(); i++) {
-    result.push_back(var::CString(at(i).to_cstring()));
-  }
-  return result;
 }
 
 var::StringViewList JsonArray::string_view_list() const {

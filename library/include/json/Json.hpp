@@ -7,6 +7,7 @@
 
 #include <api/api.hpp>
 
+#include <var/StackString.hpp>
 #include <var/String.hpp>
 #include <var/Vector.hpp>
 
@@ -162,7 +163,7 @@ public:
 
   enum class IsDeepCopy { no, yes };
 
-  using KeyList = var::Vector<var::CString>;
+  using KeyList = var::StringViewList;
 
   JsonValue &
   copy(const JsonValue &value, IsDeepCopy deep_copy = IsDeepCopy::yes);
@@ -170,6 +171,16 @@ public:
   static JsonApi &api() { return m_api; }
 
 protected:
+  struct Key {
+    Key(const var::StringView value)
+      : key_string(value.is_null_terminated() ? var::StringView() : value),
+        cstring(
+          value.is_null_terminated() ? value.data() : key_string.cstring()) {}
+
+    var::KeyString key_string;
+    const char *cstring;
+  };
+
   int create_if_not_valid();
   virtual json_t *create() { return 0; }
 
@@ -195,8 +206,8 @@ private:
 
 class JsonKeyValue : public JsonValue {
 public:
-  JsonKeyValue(const char *key, const JsonValue &value)
-      : JsonValue(value), m_key(key) {}
+  JsonKeyValue(const var::StringView key, const JsonValue &value)
+    : JsonValue(value), m_key(key) {}
 
   JsonKeyValue &set_value(const JsonValue &a) {
     add_reference(a.m_value);
@@ -207,12 +218,12 @@ public:
   JsonValue get_value() const { return JsonValue(*this); }
 
 private:
-  API_READ_ACCESS_FUNDAMENTAL(JsonKeyValue, const char *, key, nullptr);
+  API_READ_ACCESS_COMPOUND(JsonKeyValue, var::KeyString, key);
 };
 
 template <class Derived> class JsonKeyValueList : public var::Vector<Derived> {
 public:
-  Derived at(const char *key) {
+  Derived at(const var::StringView key) {
     for (const auto &item : *this) {
       if (item.key() == key) {
         return item;
@@ -225,7 +236,7 @@ public:
     JsonValue::KeyList result;
     result.reserve(this->count());
     for (const auto item : *this) {
-      result.push_back(var::CString(item.key()));
+      result.push_back(item.key());
     }
     return result;
   }
@@ -242,7 +253,7 @@ public:
     KeyList list = key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
-      result.push_back(T(key, at(key.cstring())));
+      result.push_back(T(key, at(key)));
     }
     return result;
   }
@@ -265,13 +276,13 @@ public:
 
   bool is_empty() const { return count() == 0; }
 
-  JsonObject &insert(const char *key, const JsonValue &value);
+  JsonObject &insert(const var::StringView key, const JsonValue &value);
 
   JsonObject &insert(const JsonKeyValue &key_value) {
     return insert(key_value.key(), key_value.value());
   }
 
-  JsonObject &insert(const char *key, bool value);
+  JsonObject &insert(const var::StringView key, bool value);
 
   enum class UpdateFlags {
     null = 0x00,
@@ -289,7 +300,7 @@ public:
    * \return Zero on success (-1 is key was not found)
    *
    */
-  JsonObject &remove(const char *key);
+  JsonObject &remove(const var::StringView key);
 
   /*!
    * \details Returns the number of key/value pairs in the object
@@ -322,7 +333,7 @@ public:
    * JsonValue is destroyed.
    *
    */
-  JsonValue at(const char *key) const;
+  JsonValue at(const var::StringView key) const;
 
   KeyList key_list() const;
 
@@ -338,7 +349,6 @@ public:
 
   explicit JsonArray(const var::StringList &list);
   explicit JsonArray(const var::StringViewList &list);
-  explicit JsonArray(const var::Vector<var::CString> &list);
   explicit JsonArray(const var::Vector<float> &list);
   explicit JsonArray(const var::Vector<u32> &list);
   explicit JsonArray(const var::Vector<s32> &list);
@@ -392,7 +402,6 @@ public:
   JsonArray &clear();
 
   var::StringViewList string_view_list() const;
-  var::Vector<var::CString> cstring_list() const;
   var::Vector<s32> integer_list() const;
   var::Vector<float> float_list() const;
   var::Vector<bool> bool_list() const;

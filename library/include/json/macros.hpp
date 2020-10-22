@@ -9,15 +9,7 @@
   var::StringView get_##v() const {                                            \
     return var::StringView(to_object().at(MCU_STRINGIFY(k)).to_cstring());     \
   }                                                                            \
-  c &set_##v(const char *value) {                                              \
-    to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
-    return *this;                                                              \
-  }                                                                            \
   c &set_##v(const var::StringView value) {                                    \
-    to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
-    return *this;                                                              \
-  }                                                                            \
-  c &set_##v(const var::String &value) {                                       \
     to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \
     return *this;                                                              \
   }                                                                            \
@@ -175,10 +167,6 @@
     return *this;                                                              \
   }                                                                            \
   c &set_##v(const var::StringList &a) {                                       \
-    to_object().insert(MCU_STRINGIFY(k), json::JsonArray(a));                  \
-    return *this;                                                              \
-  }                                                                            \
-  c &set_##v(const var::Vector<var::CString> &a) {                             \
     to_object().insert(MCU_STRINGIFY(k), json::JsonArray(a));                  \
     return *this;                                                              \
   }                                                                            \

@@ -157,23 +157,19 @@ public:
       JsonObject::KeyList key_list = object.key_list();
 
       TEST_ASSERT(key_list.count() == 12);
-      TEST_ASSERT(key_list.find(CString("string")) == CString("string"));
-      TEST_ASSERT(key_list.find(CString("integerString")) ==
-                  CString("integerString"));
-      TEST_ASSERT(key_list.find(CString("integer")) == CString("integer"));
-      TEST_ASSERT(key_list.find(CString("integerZero")) ==
-                  CString("integerZero"));
-      TEST_ASSERT(key_list.find(CString("real")) == CString("real"));
+      TEST_ASSERT(key_list.find("string") == "string");
+      TEST_ASSERT(key_list.find("integerString") == "integerString");
+      TEST_ASSERT(key_list.find("integer") == "integer");
+      TEST_ASSERT(key_list.find("integerZero") == ("integerZero"));
+      TEST_ASSERT(key_list.find("real") == "real");
 
-      TEST_ASSERT(key_list.find(CString("realString")) ==
-                  CString("realString"));
-      TEST_ASSERT(key_list.find(CString("realZero")) == CString("realZero"));
-      TEST_ASSERT(key_list.find(CString("true")) == CString("true"));
-      TEST_ASSERT(key_list.find(CString("false")) == CString("false"));
-      TEST_ASSERT(key_list.find(CString("null")) == CString("null"));
-      TEST_ASSERT(key_list.find(CString("trueString")) ==
-                  CString("trueString"));
-      TEST_ASSERT(key_list.find(CString("array")) == CString("array"));
+      TEST_ASSERT(key_list.find("realString") == "realString");
+      TEST_ASSERT(key_list.find("realZero") == "realZero");
+      TEST_ASSERT(key_list.find("true") == "true");
+      TEST_ASSERT(key_list.find("false") == "false");
+      TEST_ASSERT(key_list.find("null") == "null");
+      TEST_ASSERT(key_list.find("trueString") == "trueString");
+      TEST_ASSERT(key_list.find("array") == "array");
 
       printer().object("object", object);
 

@@ -92,7 +92,8 @@ private:
 
   u32 json_flags() const { return static_cast<u32>(option_flags()); }
 
-  static size_t load_file_data(void *buffer, size_t buflen, void *data);
+  static int write_file_data(const char *buffer, size_t buflen, void *data);
+  static size_t read_file_data(void *buffer, size_t buflen, void *data);
 };
 
 API_OR_NAMED_FLAGS_OPERATOR(JsonDocument, OptionFlags)

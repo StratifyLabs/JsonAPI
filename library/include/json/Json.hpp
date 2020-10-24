@@ -117,6 +117,10 @@ public:
 
   const char *to_cstring() const;
 
+  var::StringView to_string_view() const {
+    return var::StringView(to_cstring());
+  }
+
   var::String to_string() const;
 
   /*! \details Returns a float value of the JSON value.

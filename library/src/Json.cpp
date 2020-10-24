@@ -357,7 +357,8 @@ JsonObject &JsonObject::operator=(const JsonObject &value) {
 
 json_t *JsonObject::create() {
   API_RETURN_VALUE_IF_ERROR(nullptr);
-  return api()->create_object();
+  json_t *result = API_SYSTEM_CALL_NULL("", api()->create_object());
+  return result;
 }
 
 json_t *JsonArray::create() {

@@ -286,7 +286,7 @@ public:
     return insert(key_value.key(), key_value.value());
   }
 
-  JsonObject &insert(const var::StringView key, bool value);
+  JsonObject &insert_bool(const var::StringView key, bool value);
 
   enum class UpdateFlags {
     null = 0x00,

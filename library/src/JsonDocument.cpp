@@ -3,7 +3,7 @@
 #include "xml2json.hpp"
 #endif
 
-#include <fs/File.hpp>
+#include <fs.hpp>
 
 #include "json/JsonDocument.hpp"
 
@@ -23,8 +23,8 @@ JsonValue JsonDocument::from_xml_string(const char *xml, IsXmlFlat is_flat) {
 
 JsonValue JsonDocument::load_xml(StringView path, IsXmlFlat is_flat) {
   fs::File input(path, fs::OpenMode::read_only());
-  fs::DataFile data_file(
-    std::move(fs::DataFile().reserve(input.size()).write(input)));
+  fs::DataFile data_file
+    = fs::DataFile().reserve(input.size()).write(input).move();
   return from_xml_string(data_file.data().add_null_terminator(), is_flat);
 }
 #endif

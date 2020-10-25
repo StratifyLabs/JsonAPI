@@ -25,7 +25,7 @@
 #define JSON_ACCESS_BOOL_WITH_KEY(c, k, v)                                     \
   bool is_##v() const { return to_object().at(MCU_STRINGIFY(k)).to_bool(); }   \
   c &set_##v(bool value = true) {                                              \
-    to_object().insert(MCU_STRINGIFY(k), value);                               \
+    to_object().insert_bool(MCU_STRINGIFY(k), value);                          \
     return *this;                                                              \
   }                                                                            \
   c &remove_##v() {                                                            \

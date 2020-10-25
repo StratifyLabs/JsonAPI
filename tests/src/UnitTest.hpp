@@ -13,7 +13,6 @@
 
 class UnitTest : public test::Test {
 public:
-
   UnitTest(var::StringView name) : test::Test(name) {}
 
   bool execute_class_api_case() {
@@ -40,12 +39,12 @@ public:
   bool array_case() {
 
     JsonArray array = JsonArray()
-                          .append(JsonString("string"))
-                          .append(JsonInteger(5))
-                          .append(JsonReal(2.5f))
-                          .append(JsonTrue())
-                          .append(JsonFalse())
-                          .append(JsonNull());
+                        .append(JsonString("string"))
+                        .append(JsonInteger(5))
+                        .append(JsonReal(2.5f))
+                        .append(JsonTrue())
+                        .append(JsonFalse())
+                        .append(JsonNull());
 
     TEST_ASSERT(array.insert(1, JsonString("at1")).at(1).to_string() == "at1");
 
@@ -56,42 +55,46 @@ public:
 
     {
       JsonObject object = JsonObject()
-                              .insert("string", JsonString("string"))
-                              .insert("integerString", JsonString("100"))
-                              .insert("integer", JsonInteger(10))
-                              .insert("integerZero", JsonInteger(0))
-                              .insert("real", JsonReal(2.2f))
-                              .insert("realString", JsonString("2.2f"))
-                              .insert("realZero", JsonReal(0.0f))
-                              .insert("true", JsonTrue())
-                              .insert("false", JsonFalse())
-                              .insert("null", JsonNull())
-                              .insert("trueString", JsonString("true"))
-                              .insert("array", JsonArray()
-                                                   .append(JsonString("string"))
-                                                   .append(JsonInteger(5))
-                                                   .append(JsonReal(2.5f))
-                                                   .append(JsonTrue())
-                                                   .append(JsonFalse())
-                                                   .append(JsonNull()));
+                            .insert("string", JsonString("string"))
+                            .insert("integerString", JsonString("100"))
+                            .insert("integer", JsonInteger(10))
+                            .insert("integerZero", JsonInteger(0))
+                            .insert("real", JsonReal(2.2f))
+                            .insert("realString", JsonString("2.2f"))
+                            .insert("realZero", JsonReal(0.0f))
+                            .insert("true", JsonTrue())
+                            .insert("false", JsonFalse())
+                            .insert("null", JsonNull())
+                            .insert("trueString", JsonString("true"))
+                            .insert_bool("boolTrue", true)
+                            .insert_bool("boolFalse", false)
+                            .insert(
+                              "array",
+                              JsonArray()
+                                .append(JsonString("string"))
+                                .append(JsonInteger(5))
+                                .append(JsonReal(2.5f))
+                                .append(JsonTrue())
+                                .append(JsonFalse())
+                                .append(JsonNull()));
 
       TEST_ASSERT(JsonDocument()
-                      .save(object, File(File::IsOverwrite::yes, "test.json"))
-                      .is_success());
+                    .save(object, File(File::IsOverwrite::yes, "test.json"))
+                    .is_success());
 
       {
-        JsonObject load_object =
-            JsonDocument().load(File("test.json", OpenMode::read_only()));
+        JsonObject load_object
+          = JsonDocument().load(File("test.json", OpenMode::read_only()));
 
         TEST_ASSERT(is_success());
         TEST_ASSERT(load_object.is_object());
       }
 
       {
-        JsonObject load_object =
-            JsonDocument()
-                .load(File("test2.json", OpenMode::read_only()))
-                .to_object();
+        JsonObject load_object
+          = JsonDocument()
+              .load(File("test2.json", OpenMode::read_only()))
+              .to_object();
         API_RESET_ERROR();
         TEST_ASSERT(load_object.is_valid() == false);
         TEST_ASSERT(load_object.is_object() == false);
@@ -135,24 +138,26 @@ public:
     PrinterObject po(printer(), "object");
     {
       JsonObject object = JsonObject()
-                              .insert("string", JsonString("string"))
-                              .insert("integerString", JsonString("100"))
-                              .insert("integer", JsonInteger(10))
-                              .insert("integerZero", JsonInteger(0))
-                              .insert("real", JsonReal(2.2f))
-                              .insert("realString", JsonString("2.2f"))
-                              .insert("realZero", JsonReal(0.0f))
-                              .insert("true", JsonTrue())
-                              .insert("false", JsonFalse())
-                              .insert("null", JsonNull())
-                              .insert("trueString", JsonString("true"))
-                              .insert("array", JsonArray()
-                                                   .append(JsonString("string"))
-                                                   .append(JsonInteger(5))
-                                                   .append(JsonReal(2.5f))
-                                                   .append(JsonTrue())
-                                                   .append(JsonFalse())
-                                                   .append(JsonNull()));
+                            .insert("string", JsonString("string"))
+                            .insert("integerString", JsonString("100"))
+                            .insert("integer", JsonInteger(10))
+                            .insert("integerZero", JsonInteger(0))
+                            .insert("real", JsonReal(2.2f))
+                            .insert("realString", JsonString("2.2f"))
+                            .insert("realZero", JsonReal(0.0f))
+                            .insert("true", JsonTrue())
+                            .insert("false", JsonFalse())
+                            .insert("null", JsonNull())
+                            .insert("trueString", JsonString("true"))
+                            .insert(
+                              "array",
+                              JsonArray()
+                                .append(JsonString("string"))
+                                .append(JsonInteger(5))
+                                .append(JsonReal(2.5f))
+                                .append(JsonTrue())
+                                .append(JsonFalse())
+                                .append(JsonNull()));
 
       JsonObject::KeyList key_list = object.key_list();
 
@@ -194,8 +199,9 @@ public:
       TEST_ASSERT(object.at("null").to_bool() == false);
       TEST_ASSERT(object.at("trueString").to_bool() == true);
       TEST_ASSERT(object.at("string").to_bool() == false);
-      TEST_ASSERT(object.at("array").to_array().at(0).to_cstring() ==
-                  StringView("string"));
+      TEST_ASSERT(
+        object.at("array").to_array().at(0).to_cstring()
+        == StringView("string"));
       TEST_ASSERT(object.at("array").to_array().at(1).to_integer() == 5);
       TEST_ASSERT(object.at("array").to_array().at(2).to_real() == 2.5f);
       TEST_ASSERT(object.at("array").to_array().at(3).to_bool() == true);

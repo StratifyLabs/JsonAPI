@@ -10,6 +10,8 @@
    "false": false,
    "null": null,
    "trueString": "true",
+   "boolTrue": true,
+   "boolFalse": false,
    "array": [
       "string",
       5,

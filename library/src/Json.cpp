@@ -18,13 +18,13 @@
 #define atoff atof
 #endif
 
-printer::Printer &printer::operator<<(Printer &printer,
-                                      const json::JsonValue &a) {
+printer::Printer &
+printer::operator<<(Printer &printer, const json::JsonValue &a) {
   return print_value(printer, a, "");
 }
 
-printer::Printer &printer::operator<<(Printer &printer,
-                                      const json::JsonError &a) {
+printer::Printer &
+printer::operator<<(Printer &printer, const json::JsonError &a) {
   printer.key("text", a.text());
   printer.key("line", var::NumberString(a.line()).string_view());
   printer.key("column", var::NumberString(a.column()).string_view());
@@ -33,9 +33,10 @@ printer::Printer &printer::operator<<(Printer &printer,
   return printer;
 }
 
-printer::Printer &printer::print_value(Printer &printer,
-                                       const json::JsonValue &a,
-                                       var::StringView key) {
+printer::Printer &printer::print_value(
+  Printer &printer,
+  const json::JsonValue &a,
+  var::StringView key) {
   if (a.is_object()) {
     json::JsonValue::KeyList key_list = a.to_object().key_list();
     if (!key.is_empty()) {
@@ -202,14 +203,17 @@ int JsonValue::create_if_not_valid() {
 JsonValue &JsonValue::assign(const var::StringView value) {
   API_RETURN_VALUE_IF_ERROR(*this);
   if (is_string()) {
-    API_SYSTEM_CALL("",
-                    api()->string_setn(m_value, value.data(), value.length()));
+    API_SYSTEM_CALL(
+      "",
+      api()->string_setn(m_value, value.data(), value.length()));
   } else if (is_real()) {
     API_SYSTEM_CALL(
-        "", api()->real_set(m_value, var::NumberString(value).to_float()));
+      "",
+      api()->real_set(m_value, var::NumberString(value).to_float()));
   } else if (is_integer()) {
     API_SYSTEM_CALL(
-        "", api()->integer_set(m_value, var::NumberString(value).to_integer()));
+      "",
+      api()->integer_set(m_value, var::NumberString(value).to_integer()));
   } else if (is_true() || is_false()) {
     if (var::StringView(value) == "true") {
       *this = JsonTrue();
@@ -396,7 +400,7 @@ json_t *JsonNull::create() {
   return API_SYSTEM_CALL_NULL("", api()->create_null());
 }
 
-JsonObject &JsonObject::insert(const var::StringView key, bool value) {
+JsonObject &JsonObject::insert_bool(const var::StringView key, bool value) {
 
   if (value) {
     return insert(Key(key).cstring, JsonTrue());
@@ -452,14 +456,14 @@ JsonObject::KeyList JsonObject::key_list() const {
   u32 count = 0;
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
        key = api()->object_iter_key(
-           api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
+         api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
     count++;
   }
 
   KeyList result = KeyList().reserve(count);
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;
        key = api()->object_iter_key(
-           api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
+         api()->object_iter_next(m_value, api()->object_key_to_iter(key)))) {
     result.push_back(key);
   }
 
@@ -602,8 +606,8 @@ JsonString::JsonString(const char *str) {
 
 JsonString::JsonString(const var::StringView str) {
   API_RETURN_IF_ERROR();
-  m_value =
-      API_SYSTEM_CALL_NULL("", api()->create_stringn(str.data(), str.length()));
+  m_value
+    = API_SYSTEM_CALL_NULL("", api()->create_stringn(str.data(), str.length()));
 }
 
 JsonString::JsonString(const var::String &str) {

@@ -50,7 +50,7 @@ public:
    * \param path The path to the file
    * \return Zero on success
    */
-  JsonValue load(const fs::File &file);
+  JsonValue load(const fs::FileObject &file);
 
 #if defined __link
   enum class IsXmlFlat { no, yes };
@@ -79,7 +79,7 @@ public:
     return to_string(value);
   }
 
-  JsonDocument &save(const JsonValue &value, const fs::File &file);
+  JsonDocument &save(const JsonValue &value, const fs::FileObject &file);
 
   JsonDocument &save(const JsonValue &value, json_dump_callback_t callback,
                      void *context);

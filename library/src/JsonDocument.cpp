@@ -66,7 +66,7 @@ size_t JsonDocument::read_file_data(void *buffer, size_t buflen, void *data) {
     .return_value();
 }
 
-JsonValue JsonDocument::load(const fs::File &file) {
+JsonValue JsonDocument::load(const fs::FileObject &file) {
   API_RETURN_VALUE_IF_ERROR(JsonValue());
   JsonValue value;
   value.m_value = API_SYSTEM_CALL_NULL(
@@ -90,7 +90,8 @@ int JsonDocument::write_file_data(
   return 0;
 }
 
-JsonDocument &JsonDocument::save(const JsonValue &value, const fs::File &file) {
+JsonDocument &
+JsonDocument::save(const JsonValue &value, const fs::FileObject &file) {
   API_RETURN_VALUE_IF_ERROR(*this);
   API_SYSTEM_CALL(
     "",

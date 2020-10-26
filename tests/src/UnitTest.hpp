@@ -135,7 +135,7 @@ public:
 
   bool object_case() {
 
-    PrinterObject po(printer(), "object");
+    Printer::Object po(printer(), "object");
     {
       JsonObject object = JsonObject()
                             .insert("string", JsonString("string"))

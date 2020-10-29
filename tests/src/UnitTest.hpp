@@ -1,15 +1,13 @@
 ﻿
 #include <cstdio>
 
-#include "chrono.hpp"
-#include "fs.hpp"
-#include "printer.hpp"
-#include "sys.hpp"
-#include "var.hpp"
+#include <fs.hpp>
+#include <printer.hpp>
+#include <test/Test.hpp>
+#include <var.hpp>
 
 #include "json.hpp"
 
-#include "test/Test.hpp"
 
 class UnitTest : public test::Test {
 public:

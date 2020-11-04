@@ -59,25 +59,6 @@ public:
   operator const JsonArray &() const { return to_array(); }
   operator JsonArray &() { return to_array(); }
 
-  /*! \details Returns true if the value is valid.
-   *
-   * \code
-   * JsonObject object;
-   * object.is_valid(); //true - a valid (though empty) object
-   * object.insert("foo", "bar");
-   * object.at("foo").is_valid(); //true
-   * object.at("bar").is_valid(); //false
-   *
-   * JsonValue value;
-   * value.is_valid(); //false
-   *
-   * JsonValue object_observer(object);
-   *
-   * object_observer.is_valid(); //true
-   *
-   * \endcode
-   *
-   */
   bool is_valid() const { return m_value != nullptr; }
 
   enum class Type {

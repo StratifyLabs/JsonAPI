@@ -13,7 +13,37 @@ class UnitTest : public test::Test {
 public:
   UnitTest(var::StringView name) : test::Test(name) {}
 
+  class JsonChild : public JsonValue {
+  public:
+    JsonChild() {}
+
+    JsonChild(const json::JsonObject &object) : json::JsonValue(object) {}
+    JsonChild &set_as_object() {
+      *this = JsonObject();
+      m_is_valid = is_valid();
+      return *this;
+    }
+
+    bool m_is_valid;
+  };
+
   bool execute_class_api_case() {
+
+    JsonObject object;
+    TEST_ASSERT(object.is_valid());
+    object = JsonObject();
+    TEST_ASSERT(object.is_valid());
+
+    JsonValue value;
+    TEST_ASSERT(value.is_valid() == false);
+    value = JsonObject();
+    TEST_ASSERT(value.is_valid());
+    TEST_ASSERT(value.is_object());
+
+    JsonChild child;
+    TEST_ASSERT(child.is_valid() == false);
+    TEST_ASSERT(child.set_as_object().is_valid());
+    TEST_ASSERT(child.m_is_valid);
 
     if (!array_case()) {
       return false;

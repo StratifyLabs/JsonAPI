@@ -2,7 +2,7 @@
 #define JANSSON_API_H
 
 #include "jansson.h"
-#include <api/api.h>
+#include <API/api/api.h>
 
 #ifdef __cplusplus
 extern "C" {

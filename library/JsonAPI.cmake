@@ -1,6 +1,6 @@
 
 if(NOT DEFINED IS_SDK)
-	include(StratifyAPI)
+	include(API)
 	if(SOS_IS_LINK)
 		sos_sdk_include_target(jansson "${STRATIFYAPI_CONFIG_LIST}")
 	endif()

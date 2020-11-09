@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_MODULE_PATH}/sos-toolchain.cmake)
 include(sos-sdk)
 
 if(NOT DEFINED IS_SDK)
-	include(StratifyAPI)
+	include(API)
 endif()
 
 project(JsonAPI CXX)

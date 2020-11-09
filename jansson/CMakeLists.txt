@@ -42,6 +42,7 @@ set(PRIVATE_SOURCELIST
 	${SOURCES_PREFIX}/strbuffer.h
 	${SOURCES_PREFIX}/utf.h
 	jansson_private_config.h
+	jansson_api.h
 	jansson_api.c
 )
 

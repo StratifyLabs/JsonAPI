@@ -220,7 +220,7 @@ public:
   JsonValue::KeyList get_key_list() const {
     JsonValue::KeyList result;
     result.reserve(this->count());
-    for (const auto item : *this) {
+    for (const auto &item : *this) {
       result.push_back(item.key());
     }
     return result;

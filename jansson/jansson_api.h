@@ -1,7 +1,7 @@
 #ifndef JANSSON_API_H
 #define JANSSON_API_H
 
-#include <mcu/api.h>
+#include <sdk/api.h>
 
 #include "jansson.h"
 

@@ -6,7 +6,7 @@ if(SOS_IS_LINK)
 	list(APPEND DEPENDENCIES jansson)
 endif()
 
-stratify_api_add_test_executable(JsonAPI 32768 "${DEPENDENCIES}")
+api_add_test_executable(JsonAPI 32768 "${DEPENDENCIES}")
 
 
 

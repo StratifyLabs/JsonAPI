@@ -5,7 +5,7 @@ if(SOS_IS_LINK)
 endif()
 
 
-stratifyapi_add_api_library(JsonAPI "${LIBRARIES}")
+api_add_api_library(JsonAPI "${LIBRARIES}")
 
 
 

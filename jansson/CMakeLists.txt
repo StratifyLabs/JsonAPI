@@ -18,8 +18,7 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 		)
 endif()
 
-set(SOS_NAME jansson)
-project(StratifyOS-jansson C)
+project(jansson C)
 
 set(SOURCES_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/jansson/src)
 
@@ -56,7 +55,7 @@ if(SOS_IS_ARM)
 	set(LIB_OPTION kernel)
 endif()
 
-sos_sdk_library_target(RELEASE jansson "${LIB_OPTION}" release ${SOS_ARCH})
+sos_sdk_library_target(RELEASE ${PROJECT_NAME} "${LIB_OPTION}" release ${SOS_ARCH})
 
 add_library(${RELEASE_TARGET} STATIC)
 
@@ -89,13 +88,13 @@ target_include_directories(${RELEASE_TARGET}
 	jansson/src
 	)
 
-sos_sdk_library_target(DEBUG jansson "${LIB_OPTION}" debug ${SOS_ARCH})
+sos_sdk_library_target(DEBUG ${PROJECT_NAME} "${LIB_OPTION}" debug ${SOS_ARCH})
 add_library(${DEBUG_TARGET} STATIC)
 sos_sdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
 sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH} "")
 
 if(SOS_IS_LINK)
-	sos_sdk_library_target(COVERAGE jansson "${LIB_OPTION}" coverage ${SOS_ARCH})
+	sos_sdk_library_target(COVERAGE ${PROJECT_NAME} "${LIB_OPTION}" coverage ${SOS_ARCH})
 	add_library(${COVERAGE_TARGET} STATIC)
 	sos_sdk_copy_target(${RELEASE_TARGET} ${COVERAGE_TARGET})
 	sos_sdk_library_add_arch_targets("${COVERAGE_OPTIONS}" ${SOS_ARCH} "")
@@ -105,3 +104,5 @@ sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "")
 
 install(FILES ./jansson/src/jansson.h ./jansson_api.h ./jansson_config.h DESTINATION include/jansson)
 
+install(FILES ${PROJECT_NAME}.cmake
+	DESTINATION cmake/targets)

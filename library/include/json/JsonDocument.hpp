@@ -63,7 +63,8 @@ public:
   JsonValue from_xml_string(const char *xml,
                             IsXmlFlat is_flat = IsXmlFlat::yes);
 
-  JsonValue load_xml(var::StringView path, IsXmlFlat is_flat = IsXmlFlat::yes);
+  JsonValue
+  load_xml(const fs::FileObject &input, IsXmlFlat is_flat = IsXmlFlat::yes);
 #endif
 
   /*!

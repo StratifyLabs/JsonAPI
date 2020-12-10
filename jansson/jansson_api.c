@@ -1,4 +1,4 @@
-#include <mcu/types.h>
+#include <sdk/types.h>
 
 #include "jansson_api.h"
 

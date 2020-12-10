@@ -21,8 +21,8 @@ JsonValue JsonDocument::from_xml_string(const char *xml, IsXmlFlat is_flat) {
 #endif
 }
 
-JsonValue JsonDocument::load_xml(StringView path, IsXmlFlat is_flat) {
-  fs::File input(path, fs::OpenMode::read_only());
+JsonValue
+JsonDocument::load_xml(const fs::FileObject &input, IsXmlFlat is_flat) {
   fs::DataFile data_file
     = fs::DataFile().reserve(input.size()).write(input).move();
   return from_xml_string(data_file.data().add_null_terminator(), is_flat);

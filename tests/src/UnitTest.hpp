@@ -74,8 +74,6 @@ public:
 
     printer().object("testObject", test_object);
 
-    printf("%s\n", JsonDocument().stringify(test_object).cstring());
-
     const DataFile json_file
       = DataFile().write(JsonDocument().stringify(test_object)).seek(0).move();
 
@@ -136,6 +134,17 @@ public:
 
       printer().object("/another/list/[3]", object);
       TEST_ASSERT(object.at("config").to_string_view() == "stm32");
+    }
+
+    {
+      json_file.seek(0);
+      JsonObject object = JsonDocument()
+                            .seek("/another/list/[9]", json_file)
+                            .set_flags(JsonDocument::Flags::disable_eof_check)
+                            .load(json_file);
+
+      TEST_ASSERT(is_error());
+      API_RESET_ERROR();
     }
 
     return true;

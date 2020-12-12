@@ -191,10 +191,10 @@ const JsonDocument &JsonDocument::seek(
     size_t location = file.location();
     size_t offset = 0;
 
+    input_buffer.fill(0);
     read_result = file.read(input_buffer).return_value();
 
     for (auto c : input_buffer) {
-
       switch (state) {
       case state_read_value: {
         const enum states current_state = state;

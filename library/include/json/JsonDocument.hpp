@@ -3,6 +3,7 @@
 
 #include <fs/File.hpp>
 #include <fs/Path.hpp>
+#include <var/StringView.hpp>
 
 #include "Json.hpp"
 
@@ -15,7 +16,7 @@ namespace json {
  */
 class JsonDocument : public api::ExecutionContext {
 public:
-  enum class OptionFlags {
+  enum class Flags {
     reject_duplicates = JSON_REJECT_DUPLICATES,
     disable_eof_check = JSON_DISABLE_EOF_CHECK,
     decode_any = JSON_DECODE_ANY,
@@ -37,12 +38,12 @@ public:
     embed = JSON_EMBED
   };
 
-  JsonDocument &set_option_flags(OptionFlags flags) {
-    m_option_flags = flags;
+  JsonDocument &set_flags(Flags flags) {
+    m_flags = flags;
     return *this;
   }
 
-  OptionFlags option_flags() const { return m_option_flags; }
+  Flags option_flags() const { return m_flags; }
 
   // load a JSON object or array from a file?
   /*!
@@ -82,13 +83,19 @@ public:
 
   JsonDocument &save(const JsonValue &value, const fs::FileObject &file);
 
-  JsonDocument &save(const JsonValue &value, json_dump_callback_t callback,
-                     void *context);
+  JsonDocument &
+  save(const JsonValue &value, json_dump_callback_t callback, void *context);
+
+  const JsonDocument &
+  seek(const var::StringView path, const fs::FileObject &file) const;
+  JsonDocument &seek(const var::StringView path, const fs::FileObject &file) {
+    return API_CONST_CAST_SELF(JsonDocument, seek, path, file);
+  }
 
   const JsonError &error() const { return m_error; }
 
 private:
-  OptionFlags m_option_flags = OptionFlags::indent3;
+  Flags m_flags = Flags::indent3;
   JsonError m_error;
 
   u32 json_flags() const { return static_cast<u32>(option_flags()); }
@@ -97,7 +104,7 @@ private:
   static size_t read_file_data(void *buffer, size_t buflen, void *data);
 };
 
-API_OR_NAMED_FLAGS_OPERATOR(JsonDocument, OptionFlags)
+API_OR_NAMED_FLAGS_OPERATOR(JsonDocument, Flags)
 
 } // namespace json
 

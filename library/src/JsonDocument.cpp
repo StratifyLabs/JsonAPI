@@ -4,6 +4,7 @@
 #endif
 
 #include <fs.hpp>
+#include <var.hpp>
 
 #include "json/JsonDocument.hpp"
 
@@ -100,5 +101,167 @@ JsonDocument::save(const JsonValue &value, const fs::FileObject &file) {
       write_file_data,
       (void *)&file,
       json_flags()));
+  return *this;
+}
+
+const JsonDocument &JsonDocument::seek(
+  const var::StringView path,
+  const fs::FileObject &file) const {
+
+  /*
+   * for
+   * {
+   *   "name": "config",
+   *   "config": {
+   *     "name": "JsonAPI"
+   *   }
+   * }
+   *
+   * use seek /config/name to seek to "JsonAPI"
+   *
+   * Use
+   *
+   */
+
+  enum states {
+    state_find_key, // waiting for " to close the key
+    state_read_key, // waiting for " to close the key
+    state_read_value,
+    state_read_string_value,
+    state_find_colon
+  };
+
+  class Container {
+    API_AC(Container, KeyString, key);
+    API_AF(Container, JsonValue::Type, type, JsonValue::Type::null);
+    API_AF(Container, size_t, location, 0);
+    API_AF(Container, size_t, array_index, 0);
+  };
+
+  API_ASSERT(path.at(0) == '/');
+
+  Queue<Container> container_stack;
+  const StringViewList token_list = path.split("/");
+  using InputBuffer = Array<char, 256>;
+  KeyString current_key = "<root>";
+  InputBuffer input_buffer;
+
+  const auto check_token_match = [](
+                                   const Queue<Container> &container_stack,
+                                   const StringViewList &token_list) -> bool {
+    if (token_list.count() != container_stack.count()) {
+      return false;
+    }
+    // ignore first value "<root>" for container, blank for token_list
+    int i = 0;
+    for (const auto &entry : container_stack) {
+      if (i && entry.key() != token_list.at(i++)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  size_t array_index = 0;
+  int read_result;
+  enum states state = state_read_value;
+  char last = 0;
+
+  do {
+    size_t location = file.location();
+    size_t offset = 0;
+
+    read_result = file.read(input_buffer).return_value();
+
+    for (auto c : input_buffer) {
+      switch (state) {
+      case state_read_value:
+        if (c == '{') {
+          if (
+            container_stack.count()
+            && container_stack.back().type() == JsonValue::Type::array) {
+            current_key.format("[%d]", array_index);
+          }
+
+          container_stack.push(Container()
+                                 .set_array_index(array_index)
+                                 .set_key(current_key)
+                                 .set_location(location + offset)
+                                 .set_type(JsonValue::Type::object));
+          current_key.clear();
+          array_index = 0;
+          state = state_find_key;
+        }
+        if (c == '[') {
+
+          container_stack.push(Container()
+                                 .set_key(current_key)
+                                 .set_location(location + offset)
+                                 .set_type(JsonValue::Type::object));
+          current_key.clear();
+          state = state_find_key;
+        }
+
+        if (state == state_find_key) {
+          if (check_token_match(container_stack, token_list)) {
+            file.seek(location + offset);
+            return *this;
+          }
+          break;
+        }
+
+        if (c == '}' || c == ']') {
+          container_stack.pop();
+          if (container_stack.count()) {
+            array_index = container_stack.back().array_index();
+          }
+        }
+
+        if (c == ',') {
+          current_key.clear();
+
+          if (container_stack.back().type() == JsonValue::Type::object) {
+            state = state_find_key;
+          } else {
+            state = state_read_value;
+            array_index++;
+          }
+        } else if (c == '"') {
+          state = state_read_string_value;
+        }
+        break;
+      case state_read_key:
+        if (last != '\\' && c == '"') {
+          state = state_find_colon;
+        } else {
+          current_key.append(c);
+        }
+
+        break;
+      case state_find_colon:
+        if (c == ':') {
+          state = state_read_value;
+        }
+        break;
+
+      case state_find_key:
+        if (c == '"') {
+          state = state_read_key;
+        }
+        break;
+
+      case state_read_string_value:
+        if (last != '\\' && c == '"') {
+          state = state_read_value;
+        }
+        break;
+      }
+
+      last = c;
+      offset++;
+    }
+
+  } while (read_result > 0);
+
   return *this;
 }

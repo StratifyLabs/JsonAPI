@@ -8,7 +8,6 @@
 
 #include "json.hpp"
 
-
 class UnitTest : public test::Test {
 public:
   UnitTest(var::StringView name) : test::Test(name) {}
@@ -45,21 +44,53 @@ public:
     TEST_ASSERT(child.set_as_object().is_valid());
     TEST_ASSERT(child.m_is_valid);
 
-    if (!array_case()) {
-      return false;
-    }
+    TEST_ASSERT_RESULT(array_case());
+    TEST_ASSERT_RESULT(object_case());
+    TEST_ASSERT_RESULT(value_case());
+    TEST_ASSERT_RESULT(document_case());
+    TEST_ASSERT_RESULT(seek_case());
 
-    if (!object_case()) {
-      return false;
-    }
+    return true;
+  }
 
-    if (!value_case()) {
-      return false;
-    }
+  bool seek_case() {
+    JsonObject test_object;
 
-    if (!document_case()) {
-      return false;
-    }
+    const JsonArray array = JsonArray()
+                              .append(JsonString("test"))
+                              .append(JsonInteger(1))
+                              .append(JsonTrue())
+                              .append(JsonFalse());
+
+    test_object.insert("config", JsonString("name"))
+      .insert(
+        "arch",
+        JsonObject()
+          .insert("config", JsonString("name"))
+          .insert("array", array));
+
+    printer().object("testObject", test_object);
+
+    const DataFile json_file
+      = DataFile().write(JsonDocument().stringify(test_object)).seek(0).move();
+
+    JsonObject arch_object
+      = JsonDocument()
+          .seek("/arch", json_file)
+          .set_flags(JsonDocument::Flags::disable_eof_check)
+          .load(json_file);
+
+    printer().object("arch", arch_object);
+    TEST_ASSERT(arch_object.at("config").to_string_view() == "name");
+
+    json_file.seek(0);
+
+    JsonArray arch_array = JsonDocument()
+                             .seek("/arch/array", json_file)
+                             .set_flags(JsonDocument::Flags::disable_eof_check)
+                             .load(json_file);
+
+    printer().object("archArray", arch_array);
 
     return true;
   }

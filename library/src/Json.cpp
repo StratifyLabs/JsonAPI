@@ -347,7 +347,7 @@ bool JsonValue::to_bool() const {
   return false;
 }
 
-JsonObject::JsonObject() { m_value = create(); }
+JsonObject::JsonObject() { m_value = JsonObject::create(); }
 
 JsonObject::JsonObject(const JsonObject &value) {
   add_reference(value.m_value);
@@ -474,7 +474,7 @@ JsonValue JsonObject::at(const var::StringView key) const {
   return JsonValue(api()->object_get(m_value, Key(key).cstring));
 }
 
-JsonArray::JsonArray() { m_value = create(); }
+JsonArray::JsonArray() { m_value = JsonArray::create(); }
 
 JsonArray::JsonArray(const JsonArray &value) { add_reference(value.m_value); }
 
@@ -491,35 +491,35 @@ JsonValue JsonArray::at(size_t position) const {
 }
 
 JsonArray::JsonArray(const var::StringList &list) {
-  m_value = create();
+  m_value = JsonArray::create();
   for (const auto &entry : list) {
     append(JsonString(entry.cstring()));
   }
 }
 
 JsonArray::JsonArray(const var::StringViewList &list) {
-  m_value = create();
+  m_value = JsonArray::create();
   for (const auto &entry : list) {
     append(JsonString(entry));
   }
 }
 
 JsonArray::JsonArray(const var::Vector<float> &list) {
-  m_value = create();
+  m_value = JsonArray::create();
   for (const auto &entry : list) {
     append(JsonReal(entry));
   }
 }
 
 JsonArray::JsonArray(const var::Vector<u32> &list) {
-  m_value = create();
+  m_value = JsonArray::create();
   for (const auto &entry : list) {
     append(JsonInteger(entry));
   }
 }
 
 JsonArray::JsonArray(const var::Vector<s32> &list) {
-  m_value = create();
+  m_value = JsonArray::create();
   for (const auto &entry : list) {
     append(JsonInteger(entry));
   }
@@ -597,7 +597,7 @@ var::Vector<bool> JsonArray::bool_list() const {
   return result;
 }
 
-JsonString::JsonString() { m_value = create(); }
+JsonString::JsonString() { m_value = JsonString::create(); }
 
 JsonString::JsonString(const char *str) {
   API_RETURN_IF_ERROR();
@@ -619,22 +619,22 @@ JsonString::JsonString(const var::String &str) {
 
 const char *JsonString::cstring() const { return api()->string_value(m_value); }
 
-JsonReal::JsonReal() { m_value = create(); }
+JsonReal::JsonReal() { m_value = JsonReal::create(); }
 
 JsonReal::JsonReal(float value) {
   API_RETURN_IF_ERROR();
   m_value = API_SYSTEM_CALL_NULL("", api()->create_real(value));
 }
 
-JsonInteger::JsonInteger() { m_value = create(); }
+JsonInteger::JsonInteger() { m_value = JsonInteger::create(); }
 
 JsonInteger::JsonInteger(int value) {
   API_RETURN_IF_ERROR();
   m_value = API_SYSTEM_CALL_NULL("", api()->create_integer(value));
 }
 
-JsonNull::JsonNull() { m_value = create(); }
+JsonNull::JsonNull() { m_value = JsonNull::create(); }
 
-JsonTrue::JsonTrue() { m_value = create(); }
+JsonTrue::JsonTrue() { m_value = JsonTrue::create(); }
 
-JsonFalse::JsonFalse() { m_value = create(); }
+JsonFalse::JsonFalse() { m_value = JsonFalse::create(); }

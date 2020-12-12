@@ -56,20 +56,25 @@ public:
   bool seek_case() {
     JsonObject test_object;
 
-    const JsonArray array = JsonArray()
-                              .append(JsonString("test"))
-                              .append(JsonInteger(1))
-                              .append(JsonTrue())
-                              .append(JsonFalse());
+    const JsonArray array
+      = JsonArray()
+          .append(JsonString("test"))
+          .append(JsonInteger(1))
+          .append(JsonTrue())
+          .append(JsonObject().insert("config", JsonString("stm32")))
+          .append(JsonFalse());
+
+    JsonObject some_object
+      = JsonObject().insert("config", JsonString("name")).insert("list", array);
 
     test_object.insert("config", JsonString("name"))
-      .insert(
-        "arch",
-        JsonObject()
-          .insert("config", JsonString("name"))
-          .insert("array", array));
+      .insert("arch", some_object)
+      .insert("other", some_object)
+      .insert("another", some_object);
 
     printer().object("testObject", test_object);
+
+    printf("%s\n", JsonDocument().stringify(test_object).cstring());
 
     const DataFile json_file
       = DataFile().write(JsonDocument().stringify(test_object)).seek(0).move();
@@ -80,17 +85,58 @@ public:
           .set_flags(JsonDocument::Flags::disable_eof_check)
           .load(json_file);
 
-    printer().object("arch", arch_object);
+    printer().object("/arch", arch_object);
     TEST_ASSERT(arch_object.at("config").to_string_view() == "name");
+    TEST_ASSERT(is_success());
 
     json_file.seek(0);
-
     JsonArray arch_array = JsonDocument()
-                             .seek("/arch/array", json_file)
+                             .seek("/arch/list", json_file)
                              .set_flags(JsonDocument::Flags::disable_eof_check)
                              .load(json_file);
 
-    printer().object("archArray", arch_array);
+    printer().object("/arch/list", arch_array);
+    TEST_ASSERT(arch_array.count() == array.count());
+    TEST_ASSERT(is_success());
+
+    {
+      json_file.seek(0);
+      JsonObject object = JsonDocument()
+                            .seek("/arch/list/[3]", json_file)
+                            .set_flags(JsonDocument::Flags::disable_eof_check)
+                            .load(json_file);
+
+      TEST_ASSERT(is_success());
+
+      printer().object("/arch/list/[3]", object);
+      TEST_ASSERT(object.at("config").to_string_view() == "stm32");
+    }
+
+    {
+      json_file.seek(0);
+      JsonObject object = JsonDocument()
+                            .seek("/other/list/[3]", json_file)
+                            .set_flags(JsonDocument::Flags::disable_eof_check)
+                            .load(json_file);
+
+      TEST_ASSERT(is_success());
+
+      printer().object("/other/list/[3]", object);
+      TEST_ASSERT(object.at("config").to_string_view() == "stm32");
+    }
+
+    {
+      json_file.seek(0);
+      JsonObject object = JsonDocument()
+                            .seek("/another/list/[3]", json_file)
+                            .set_flags(JsonDocument::Flags::disable_eof_check)
+                            .load(json_file);
+
+      TEST_ASSERT(is_success());
+
+      printer().object("/another/list/[3]", object);
+      TEST_ASSERT(object.at("config").to_string_view() == "stm32");
+    }
 
     return true;
   }

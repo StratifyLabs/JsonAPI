@@ -140,27 +140,47 @@ const JsonDocument &JsonDocument::seek(
 
   API_ASSERT(path.at(0) == '/');
 
-  Queue<Container> container_stack;
+  Deque<Container> container_stack;
   const StringViewList token_list = path.split("/");
   using InputBuffer = Array<char, 256>;
   KeyString current_key = "<root>";
   InputBuffer input_buffer;
 
   const auto check_token_match = [](
-                                   const Queue<Container> &container_stack,
+                                   const Deque<Container> &container_stack,
                                    const StringViewList &token_list) -> bool {
     if (token_list.count() != container_stack.count()) {
       return false;
     }
     // ignore first value "<root>" for container, blank for token_list
     int i = 0;
+    bool result = true;
     for (const auto &entry : container_stack) {
-      if (i && entry.key() != token_list.at(i++)) {
-        return false;
+      if (i && (entry.key() != token_list.at(i))) {
+        // return false;
+        result = false;
       }
+      i++;
     }
-    return true;
+    return result;
   };
+
+  const auto check_pop
+    = [](enum states state, char c, Deque<Container> &container_stack) {
+        if (c == '}' || c == ']') {
+          if (container_stack.count()) {
+            container_stack.pop_back();
+            if (container_stack.count()) {
+              if (container_stack.back().type() == JsonValue::Type::object) {
+                state = state_find_key;
+              } else {
+                state = state_read_value;
+              }
+            }
+          }
+        }
+        return state;
+      };
 
   size_t array_index = 0;
   int read_result;
@@ -174,8 +194,11 @@ const JsonDocument &JsonDocument::seek(
     read_result = file.read(input_buffer).return_value();
 
     for (auto c : input_buffer) {
+
       switch (state) {
-      case state_read_value:
+      case state_read_value: {
+        const enum states current_state = state;
+        const size_t count = container_stack.count();
         if (c == '{') {
           if (
             container_stack.count()
@@ -183,38 +206,30 @@ const JsonDocument &JsonDocument::seek(
             current_key.format("[%d]", array_index);
           }
 
-          container_stack.push(Container()
-                                 .set_array_index(array_index)
-                                 .set_key(current_key)
-                                 .set_location(location + offset)
-                                 .set_type(JsonValue::Type::object));
+          container_stack.push_back(Container()
+                                      .set_array_index(array_index)
+                                      .set_key(current_key)
+                                      .set_location(location + offset)
+                                      .set_type(JsonValue::Type::object));
           current_key.clear();
           array_index = 0;
           state = state_find_key;
-        }
-        if (c == '[') {
+        } else if (c == '[') {
 
-          container_stack.push(Container()
-                                 .set_key(current_key)
-                                 .set_location(location + offset)
-                                 .set_type(JsonValue::Type::object));
+          container_stack.push_back(Container()
+                                      .set_key(current_key)
+                                      .set_location(location + offset)
+                                      .set_type(JsonValue::Type::array));
           current_key.clear();
-          state = state_find_key;
+          state = state_read_value;
         }
 
-        if (state == state_find_key) {
+        if (count != container_stack.count()) {
           if (check_token_match(container_stack, token_list)) {
             file.seek(location + offset);
             return *this;
           }
           break;
-        }
-
-        if (c == '}' || c == ']') {
-          container_stack.pop();
-          if (container_stack.count()) {
-            array_index = container_stack.back().array_index();
-          }
         }
 
         if (c == ',') {
@@ -226,11 +241,24 @@ const JsonDocument &JsonDocument::seek(
             state = state_read_value;
             array_index++;
           }
-        } else if (c == '"') {
-          state = state_read_string_value;
+          break;
         }
+
+        if (c == '"') {
+          state = state_read_string_value;
+          break;
+        }
+
+        if (
+          (current_state != (state = check_pop(state, c, container_stack)))
+          && container_stack.count()) {
+          array_index = container_stack.back().array_index();
+        }
+
         break;
+      }
       case state_read_key:
+
         if (last != '\\' && c == '"') {
           state = state_find_colon;
         } else {
@@ -247,7 +275,10 @@ const JsonDocument &JsonDocument::seek(
       case state_find_key:
         if (c == '"') {
           state = state_read_key;
+          break;
         }
+        state = check_pop(state, c, container_stack);
+
         break;
 
       case state_read_string_value:

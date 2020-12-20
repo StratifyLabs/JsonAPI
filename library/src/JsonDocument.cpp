@@ -1,3 +1,4 @@
+// Copyright 2016-2021 Tyler Gilbert and Stratify Labs, Inc; see LICENSE.md
 
 #if defined __link
 #include "xml2json.hpp"

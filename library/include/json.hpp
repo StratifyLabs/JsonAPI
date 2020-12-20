@@ -1,3 +1,5 @@
+// Copyright 2016-2021 Tyler Gilbert and Stratify Labs, Inc; see LICENSE.md
+
 #ifndef JSONAPI_JSON_HPP
 #define JSONAPI_JSON_HPP
 

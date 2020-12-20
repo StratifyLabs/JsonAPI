@@ -1,3 +1,5 @@
+// Copyright 2016-2021 Tyler Gilbert and Stratify Labs, Inc; see LICENSE.md
+
 #ifndef JSONAPI_JSON_MACROS_HPP
 #define JSONAPI_JSON_MACROS_HPP
 
@@ -7,7 +9,7 @@
     return to_object().at(MCU_STRINGIFY(k)).to_cstring();                      \
   }                                                                            \
   var::StringView get_##v() const {                                            \
-    return var::StringView(to_object().at(MCU_STRINGIFY(k)).to_cstring());     \
+    return var::StringView(to_object().at(MCU_STRINGIFY(k)).to_string_view()); \
   }                                                                            \
   c &set_##v(const var::StringView value) {                                    \
     to_object().insert(MCU_STRINGIFY(k), json::JsonString(value));             \

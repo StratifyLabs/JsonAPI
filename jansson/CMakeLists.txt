@@ -105,4 +105,4 @@ sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "")
 install(FILES ./jansson/src/jansson.h ./jansson_api.h ./jansson_config.h DESTINATION include/jansson)
 
 install(FILES ${PROJECT_NAME}.cmake
-	DESTINATION cmake/targets)
+	DESTINATION ${SOS_SDK_PATH}/cmake/targets)

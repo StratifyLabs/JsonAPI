@@ -1,5 +1,5 @@
 
-cmake_arm/
+cmake*_arm/
 CMakeLists.txt.user
-cmake_link/
+cmake*_link/
 jansson/jansson/

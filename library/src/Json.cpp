@@ -9,13 +9,10 @@
 //#include "sys/Sys.hpp"
 #include <printer/Printer.hpp>
 #include <var/StackString.hpp>
+#include <var/StringView.hpp>
 #include <var/Tokenizer.hpp>
 
 #include "json/Json.hpp"
-
-#if defined __link
-#define atoff atof
-#endif
 
 printer::Printer &
 printer::operator<<(Printer &printer, const json::JsonValue &a) {

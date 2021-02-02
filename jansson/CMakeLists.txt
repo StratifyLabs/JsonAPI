@@ -41,14 +41,13 @@ set(PRIVATE_SOURCELIST
 	${SOURCES_PREFIX}/strbuffer.h
 	${SOURCES_PREFIX}/utf.h
 	jansson_private_config.h
-	jansson_api.h
 	jansson_api.c
 )
 
 set(PUBLIC_SOURCELIST
 	${SOURCES_PREFIX}/jansson.h
-	jansson_api.h
-	jansson_config.h
+	include/jansson/jansson_api.h
+	include/jansson/jansson_config.h
 )
 
 if(SOS_IS_ARM)
@@ -81,9 +80,11 @@ target_compile_options(${RELEASE_TARGET}
 target_include_directories(${RELEASE_TARGET}
 	PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/jansson/src>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/jansson>
 	PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_SOURCE_DIR}/include/jansson
 	${CMAKE_CURRENT_SOURCE_DIR}
 	jansson/src
 	)
@@ -102,7 +103,11 @@ endif()
 
 sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "")
 
-install(FILES ./jansson/src/jansson.h ./jansson_api.h ./jansson_config.h DESTINATION include/jansson)
+install(FILES
+	./jansson/src/jansson.h
+	./include/jansson/jansson_api.h
+	./include/jansson/jansson_config.h
+	DESTINATION include/jansson)
 
 install(FILES ${PROJECT_NAME}.cmake
 	DESTINATION ${SOS_SDK_PATH}/cmake/targets)

@@ -1,6 +1,6 @@
 #include <sdk/types.h>
 
-#include "jansson_api.h"
+#include "jansson/jansson_api.h"
 
 const jansson_api_t jansson_api = {
 	.sos_api = {

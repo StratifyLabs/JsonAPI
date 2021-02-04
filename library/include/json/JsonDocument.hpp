@@ -96,6 +96,8 @@ public:
 
   const JsonError &error() const { return m_error; }
 
+  static bool is_valid(const fs::FileObject & file, printer::Printer *printer = nullptr);
+
 private:
   Flags m_flags = Flags::indent3;
   JsonError m_error;

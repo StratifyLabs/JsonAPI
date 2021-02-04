@@ -4,6 +4,7 @@
 #include "xml2json.hpp"
 #endif
 
+#include <printer.hpp>
 #include <fs.hpp>
 #include <var.hpp>
 
@@ -297,4 +298,14 @@ const JsonDocument &JsonDocument::seek(
   } while (read_result > 0);
 
   return *this;
+}
+
+bool JsonDocument::is_valid(const fs::FileObject & file, printer::Printer * printer){
+  api::ErrorGuard error_guard;
+  JsonDocument document;
+  document.load(file);
+  if( is_error() && printer ){
+      printer->object("JsonDocumentError", document.error());
+  }
+  return is_success();
 }

@@ -34,7 +34,7 @@ printer::Printer &printer::print_value(
   const json::JsonValue &a,
   var::StringView key) {
   if (a.is_object()) {
-    json::JsonValue::KeyList key_list = a.to_object().key_list();
+    json::JsonValue::KeyList key_list = a.to_object().get_key_list();
     if (!key.is_empty()) {
       printer.print_open_object(printer.verbose_level(), key);
     }
@@ -447,7 +447,7 @@ JsonObject &JsonObject::clear() {
   return *this;
 }
 
-JsonObject::KeyList JsonObject::key_list() const {
+JsonObject::KeyList JsonObject::get_key_list() const {
   const char *key;
   u32 count = 0;
   for (key = api()->object_iter_key(api()->object_iter(m_value)); key;

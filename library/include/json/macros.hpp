@@ -5,6 +5,7 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_STRING_WITH_KEY(c, k, v)                                   \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   const char *get_##v##_cstring() const {                                      \
     return to_object().at(MCU_STRINGIFY(k)).to_cstring();                      \
   }                                                                            \
@@ -25,6 +26,7 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_BOOL_WITH_KEY(c, k, v)                                     \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   bool is_##v() const { return to_object().at(MCU_STRINGIFY(k)).to_bool(); }   \
   c &set_##v(bool value = true) {                                              \
     to_object().insert_bool(MCU_STRINGIFY(k), value);                          \
@@ -40,6 +42,7 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_INTEGER_WITH_KEY(c, k, v)                                  \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   s32 get_##v() const {                                                        \
     return to_object().at(MCU_STRINGIFY(k)).to_integer();                      \
   }                                                                            \
@@ -55,6 +58,7 @@
 #define JSON_ACCESS_INTEGER(c, v) JSON_ACCESS_INTEGER_WITH_KEY(c, v, v)
 
 #define JSON_ACCESS_REAL_WITH_KEY(c, k, v)                                     \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   float get_##v() const { return to_object().at(MCU_STRINGIFY(k)).to_real(); } \
   c &set_##v(float value) {                                                    \
     to_object().insert(MCU_STRINGIFY(k), json::JsonReal(value));               \
@@ -69,6 +73,7 @@
 
 // gets a copy that refers to the original JSON values
 #define JSON_ACCESS_OBJECT_WITH_KEY(c, T, k, v)                                \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   T v() const { return T(to_object().at(MCU_STRINGIFY(k))); }                  \
   T get_##v() const {                                                          \
     return T(json::JsonObject().copy(to_object().at(MCU_STRINGIFY(k))));       \
@@ -88,20 +93,21 @@
 // constructs a copy of a list that refers to original values (or full copy with
 // get) T should have JsonKeyValue as a base
 #define JSON_ACCESS_OBJECT_LIST_WITH_KEY(c, T, k, v)                           \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   json::JsonObject v##_to_object() const {                                     \
     return to_object().at(MCU_STRINGIFY(k));                                   \
   }                                                                            \
   json::JsonKeyValueList<T> get_##v() const {                                  \
     return to_object()                                                         \
-        .at(MCU_STRINGIFY(k))                                                  \
-        .to_object()                                                           \
-        .construct_key_list_copy<T>();                                         \
+      .at(MCU_STRINGIFY(k))                                                    \
+      .to_object()                                                             \
+      .construct_key_list_copy<T>();                                           \
   }                                                                            \
   json::JsonKeyValueList<T> v() const {                                        \
     return to_object()                                                         \
-        .at(MCU_STRINGIFY(k))                                                  \
-        .to_object()                                                           \
-        .construct_key_list<T>();                                              \
+      .at(MCU_STRINGIFY(k))                                                    \
+      .to_object()                                                             \
+      .construct_key_list<T>();                                                \
   }                                                                            \
   c &set_##v(const json::JsonKeyValueList<T> &a) {                             \
     to_object().insert(MCU_STRINGIFY(k), json::JsonObject(a));                 \
@@ -119,14 +125,15 @@
 // constructs a copy of a list that refers to original values (or full copy with
 // get)
 #define JSON_ACCESS_ARRAY_WITH_KEY(c, T, k, v)                                 \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   json::JsonArray v##_to_array() const {                                       \
     return to_object().at(MCU_STRINGIFY(k));                                   \
   }                                                                            \
   var::Vector<T> get_##v() const {                                             \
     return to_object()                                                         \
-        .at(MCU_STRINGIFY(k))                                                  \
-        .to_array()                                                            \
-        .construct_list_copy<T>();                                             \
+      .at(MCU_STRINGIFY(k))                                                    \
+      .to_array()                                                              \
+      .construct_list_copy<T>();                                               \
   }                                                                            \
   var::Vector<T> v() const {                                                   \
     return to_object().at(MCU_STRINGIFY(k)).to_array().construct_list<T>();    \
@@ -145,7 +152,8 @@
 
 // gets a copy that refers to the original JSON values
 #define JSON_ACCESS_VALUE_WITH_KEY(c, k, v)                                    \
-  const json::JsonValue &v() const {                                           \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
+  const json::JsonValue v() const {                                           \
     return to_object().at(MCU_STRINGIFY(k));                                   \
   }                                                                            \
   json::JsonValue get_##v() const {                                            \
@@ -161,6 +169,7 @@
 
 // full copy, no reference to original
 #define JSON_ACCESS_STRING_ARRAY_WITH_KEY(c, k, v)                             \
+  static const char *v##_key() { return MCU_STRINGIFY(k); }                    \
   var::StringViewList get_##v() const {                                        \
     return to_object().at(MCU_STRINGIFY(k)).to_array().string_view_list();     \
   }                                                                            \

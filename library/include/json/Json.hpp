@@ -235,7 +235,7 @@ public:
   JsonObject &operator=(const JsonObject &value);
 
   template <class T> JsonKeyValueList<T> construct_key_list() {
-    KeyList list = key_list();
+    KeyList list = get_key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
       result.push_back(T(key, at(key)));
@@ -244,7 +244,7 @@ public:
   }
 
   template <class T> JsonKeyValueList<T> construct_key_list_copy() {
-    KeyList list = key_list();
+    KeyList list = get_key_list();
     JsonKeyValueList<T> result;
     for (const auto &key : list) {
       result.push_back(T(key, JsonValue().copy(at(key))));
@@ -320,7 +320,7 @@ public:
    */
   JsonValue at(const var::StringView key) const;
 
-  KeyList key_list() const;
+  KeyList get_key_list() const;
 
 private:
   json_t *create() override;

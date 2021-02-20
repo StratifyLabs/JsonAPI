@@ -119,8 +119,8 @@ const JsonDocument &JsonDocument::seek(
    *   }
    * }
    *
-   * use seek /config to seek to "JsonAPI"
-   * must seek to an object or array
+   * use seek /config to seek to { "name": "JsonAPI" }
+   * use seek /name to seek to "config"
    *
    * Use
    *

@@ -273,7 +273,7 @@ public:
                                 .append(JsonFalse())
                                 .append(JsonNull()));
 
-      JsonObject::KeyList key_list = object.key_list();
+      const auto key_list = object.get_key_list();
 
       TEST_ASSERT(key_list.count() == 12);
       TEST_ASSERT(key_list.find("string") == "string");

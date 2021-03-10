@@ -171,6 +171,25 @@ JsonValue::~JsonValue() {
   m_value = nullptr;
 }
 
+JsonValue JsonValue::lookup(const var::StringView key_path) const {
+  API_ASSERT(key_path.at(0) == '/');
+  const auto element_list = key_path.split("/");
+
+  JsonValue parent = *this;
+  for (size_t i = 1; i < element_list.count(); i++) {
+    const auto element = element_list.at(i);
+    // first element is empty
+    JsonValue child
+      = parent.is_object()
+          ? parent.to_object().at(element)
+          : (
+            parent.is_array() ? parent.to_array().at(element.to_integer())
+                              : parent);
+    parent = child;
+  }
+  return parent;
+}
+
 const JsonObject &JsonValue::to_object() const {
   return static_cast<const JsonObject &>(*this);
 }

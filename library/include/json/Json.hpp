@@ -96,6 +96,9 @@ public:
   const JsonArray &to_array() const;
   JsonArray &to_array();
 
+  JsonValue lookup(const var::StringView key_path) const;
+
+
   const char *to_cstring() const;
 
   var::StringView to_string_view() const {
@@ -279,45 +282,10 @@ public:
   JsonObject &update(const JsonValue &value,
                      UpdateFlags o_flags = UpdateFlags::null);
 
-  /*!
-   * \details Removes the specified key from the object.
-   * \param key The key to remove
-   * \return Zero on success (-1 is key was not found)
-   *
-   */
   JsonObject &remove(const var::StringView key);
-
-  /*!
-   * \details Returns the number of key/value pairs in the object
-   * \return The number of pairs
-   */
   u32 count() const;
-
-  /*!
-   * \details Removes all key/value pairs from the object.
-   * \return Zero on success
-   */
   JsonObject &clear();
 
-  /*!
-   * \details Returns a JsonValue (as a reference) to the specified key.
-   * \param key The key to access
-   * \return A JsonValue (referenced to the key)
-   *
-   * If the key does not exist, an invalid JsonValue is returned.
-   *
-   * \code
-   * JsonObject json_object;
-   * json_object.insert("name", "john");
-   * json_object.at("name").is_valid(); //this is true
-   * json_object.at("john").is_valid(); //this is false
-   * \endcode
-   *
-   * Becaues the JsonValue is referenced (see JsonValue::is_observer())
-   * the life of the object is not affected when the returned
-   * JsonValue is destroyed.
-   *
-   */
   JsonValue at(const var::StringView key) const;
 
   KeyList get_key_list() const;

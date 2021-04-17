@@ -51,9 +51,7 @@ printer::Printer &printer::print_value(
     }
     for (u32 i = 0; i < a.to_array().count(); i++) {
       const json::JsonValue &entry = a.to_array().at(i);
-      var::String subkey;
-      subkey.format("[%04d]", i);
-      print_value(printer, entry, subkey);
+      print_value(printer, entry, var::NumberString().format("[%04d]", i));
     }
     if (!key.is_empty()) {
       printer.print_close_array();
@@ -295,7 +293,7 @@ var::String JsonValue::to_string() const {
 
 float JsonValue::to_real() const {
   if (is_string()) {
-    return to_string().to_float();
+    return to_string_view().to_float();
   } else if (is_integer()) {
     return to_integer() * 1.0f;
   } else if (is_real()) {
@@ -309,7 +307,7 @@ float JsonValue::to_real() const {
 
 int JsonValue::to_integer() const {
   if (is_string()) {
-    return to_string().to_integer();
+    return to_string_view().to_integer();
   } else if (is_real()) {
     return to_real();
   } else if (is_integer()) {

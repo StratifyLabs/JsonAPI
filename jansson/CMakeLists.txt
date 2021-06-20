@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_MODULE_PATH}/sos-toolchain.cmake)
 include(sos-sdk)
 
 set(GIT_REPOSITORY "https://github.com/akheron/jansson.git")
-set(GIT_BRANCH "2.12")
+set(GIT_BRANCH "2.13")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 	message(STATUS "Need to clone for the first call to cmake")
 	execute_process(

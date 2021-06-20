@@ -10,12 +10,7 @@
 #include "Json.hpp"
 
 namespace json {
-/*! \brief Json Class
- * \details The Json class is a JsonValue
- * that can be loaded and saved from
- * either memory or the filesystem.
- *
- */
+
 class JsonDocument : public api::ExecutionContext {
 public:
   enum class Flags {
@@ -47,22 +42,12 @@ public:
 
   Flags option_flags() const { return m_flags; }
 
-  // load a JSON object or array from a file?
-  /*!
-   * \details Loads a JSON value from a file
-   * \param path The path to the file
-   * \return Zero on success
-   */
+
   JsonValue load(const fs::FileObject &file);
 
 #if defined __link
   enum class IsXmlFlat { no, yes };
 
-  /*!
-   * \details Loads a JSON value from a data object
-   * \param data A reference to the data object containing the JSON
-   * \return
-   */
   JsonValue from_xml_string(const char *xml,
                             IsXmlFlat is_flat = IsXmlFlat::yes);
 
@@ -70,13 +55,8 @@ public:
   load_xml(const fs::FileObject &input, IsXmlFlat is_flat = IsXmlFlat::yes);
 #endif
 
-  /*!
-   * \details Loads a JSON value from a data object
-   * \param data A reference to the data object containing the JSON
-   * \return
-   */
-  JsonValue from_string(const var::StringView json);
 
+  JsonValue from_string(const var::StringView json);
   var::String to_string(const JsonValue &value) const;
 
   var::String stringify(const JsonValue &value) const {

@@ -107,41 +107,8 @@ public:
 
   var::String to_string() const;
 
-  /*! \details Returns a float value of the JSON value.
-   *
-   * If the JSON value is of type float, integer, or string,
-   * it will be converted to a real number.
-   *
-   * Otherwise, 0.0f is returned.
-   *
-   */
   float to_real() const;
-
-  /*! \details Returns an integer value of the JSON value.
-   *
-   * If the JSON value is of type float, integer, or string,
-   * it will be converted to an integer.
-   *
-   * Otherwise, 0 is returned.
-   *
-   */
   int to_integer() const;
-
-  /*! \details Returns a bool value of the JSON value.
-   *
-   * If the value is a string, it will return true
-   * if the string is "true" (not case sensitive).
-   *
-   * - INTEGER: true if non-zero
-   * - FLOAT: true if non-zero
-   * - TRUE: true
-   * - FALSE: false
-   * - NULL: false
-   * - OBJECT: true
-   * - ARRAY: true
-   * - INVALID: false
-   *
-   */
   bool to_bool() const;
 
   JsonValue &assign(const var::StringView value);
@@ -331,20 +298,10 @@ public:
     return result;
   }
 
-  /*! \details Returns true if the object is empty. */
   bool is_empty() const { return count() == 0; }
-
   u32 count() const;
 
-  /*! \details Returns a JsonValue as a reference at
-   * the specified index.
-   *
-   * @param idx The index of the value to access
-   * @return A JsonValue as a reference (see JsonValue::is_observer())
-   *
-   */
   JsonValue at(size_t position) const;
-
   JsonArray &append(const JsonValue &value);
 
   JsonArray &append(const JsonArray &array);

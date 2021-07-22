@@ -125,6 +125,10 @@ public:
 
   static JsonApi &api() { return m_api; }
 
+  const json_t * native_value() const {
+    return m_value;
+  }
+
 protected:
   struct Key {
     Key(const var::StringView value)

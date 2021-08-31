@@ -6,7 +6,7 @@
 
 ## Bug Fixes
 
-- None yet
+- Remove forward declaration of `Container` class which should not be there
 
 
 # Version 1.0

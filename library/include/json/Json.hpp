@@ -16,7 +16,6 @@ namespace json {
 #undef TRUE
 #undef FALSE
 
-class Container;
 class JsonDocument;
 
 class JsonError {

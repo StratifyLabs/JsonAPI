@@ -2,6 +2,8 @@
 
 ## New Features
 
+- Add an iterator for `JsonObject` to support range-for loops
+- Add `find()` to `JsonValue` to find a sub-value based on a path e.g "top/[4]/next"
 - Add method `native_value()` to `JsonValue` which can be used for object tracing and debugging.
 
 ## Bug Fixes

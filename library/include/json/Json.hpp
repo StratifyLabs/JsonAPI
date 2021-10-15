@@ -128,6 +128,9 @@ public:
     return m_value;
   }
 
+  JsonValue find(const var::StringView path, const char* delimiter = "/") const;
+
+
 protected:
   struct Key {
     Key(const var::StringView value)
@@ -146,6 +149,7 @@ protected:
 
 private:
   friend class JsonDocument;
+  friend class JsonObjectIterator;
   friend class JsonObject;
   friend class JsonArray;
   friend class JsonTrue;
@@ -200,12 +204,57 @@ public:
   }
 };
 
+class JsonObjectIterator : private JsonApi {
+public:
+
+  JsonObjectIterator() = default;
+
+  JsonObjectIterator(json_t * value){
+    m_json_value = value;
+    m_json_iter = api()->object_iter(m_json_value);
+  }
+
+
+  bool operator!=(JsonObjectIterator const &a) const noexcept {
+    return m_json_iter != a.m_json_iter;
+  }
+
+  JsonObject operator*() const noexcept;
+
+  JsonObjectIterator &operator++() {
+    m_json_iter = api()->object_iter_next(m_json_value, m_json_iter);
+    return *this;
+  }
+
+
+private:
+  json_t * m_json_value = nullptr;
+  void * m_json_iter = nullptr;
+};
+
 class JsonObject : public JsonValue {
 public:
   JsonObject();
 
   JsonObject(const JsonObject &value);
   JsonObject &operator=(const JsonObject &value);
+
+
+  JsonObjectIterator begin() const noexcept {
+    return JsonObjectIterator(m_value);
+  }
+
+  JsonObjectIterator end() const noexcept {
+    return JsonObjectIterator(nullptr);
+  }
+
+  JsonObjectIterator cbegin() const noexcept {
+    return JsonObjectIterator(m_value);
+  }
+
+  JsonObjectIterator cend() const noexcept {
+    return JsonObjectIterator(nullptr);
+  }
 
   template <class T> JsonKeyValueList<T> construct_key_list() {
     KeyList list = get_key_list();

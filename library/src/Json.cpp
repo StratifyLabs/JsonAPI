@@ -192,6 +192,12 @@ const JsonObject &JsonValue::to_object() const {
   return static_cast<const JsonObject &>(*this);
 }
 
+JsonObject JsonObjectIterator::operator*() const noexcept {
+  return JsonValue(m_json_value)
+    .to_object()
+    .at(api()->object_iter_key(m_json_iter));
+}
+
 JsonObject &JsonValue::to_object() { return static_cast<JsonObject &>(*this); }
 
 const JsonArray &JsonValue::to_array() const {
@@ -485,6 +491,82 @@ JsonObject::KeyList JsonObject::get_key_list() const {
 
 JsonValue JsonObject::at(const var::StringView key) const {
   return JsonValue(api()->object_get(m_value, Key(key).cstring));
+}
+
+JsonValue
+JsonValue::find(const var::StringView path, const char *delimiter) const {
+  const auto list = path.split(delimiter);
+  JsonValue current = *this;
+
+  auto get_offset_from_string = [](var::StringView item) {
+    return item.pop_back().pop_back().to_unsigned_long();
+  };
+
+  for (const auto item : list) {
+    if (item.is_empty()) {
+      API_RETURN_VALUE_ASSIGN_ERROR(JsonValue(), "empty item provided", EINVAL);
+      return JsonValue();
+    }
+
+    if (current.is_object()) {
+      auto next = current.to_object().at(item);
+      if (next.is_valid()) {
+        current = next;
+        continue;
+      }
+
+      if (item.at(0) == '{') {
+        const auto object_offset = get_offset_from_string(item);
+        size_t count = 0;
+        bool is_found = false;
+        for (const auto &value : current.to_object()) {
+          if (count == object_offset) {
+            current = value;
+            is_found = true;
+            break;
+          }
+          count++;
+        }
+        if (!is_found) {
+          API_RETURN_VALUE_ASSIGN_ERROR(
+            JsonValue(),
+            "didn't find {} offset",
+            EINVAL);
+        }
+      } else {
+        current = current.to_object().at(item);
+      }
+    } else if (current.is_array()) {
+      if (item.at(0) == '[') {
+        if (current.is_array() == false) {
+          API_RETURN_VALUE_ASSIGN_ERROR(JsonValue(), "not an array", EINVAL);
+        }
+        const auto array_offset = get_offset_from_string(item);
+        ;
+        if (current.to_array().count() <= array_offset) {
+          API_RETURN_VALUE_ASSIGN_ERROR(
+            JsonValue(),
+            "[] is beyond array",
+            EINVAL);
+        }
+        current = current.to_array().at(array_offset);
+      } else {
+        API_RETURN_VALUE_ASSIGN_ERROR(
+          JsonValue(),
+          "array not specified []",
+          EINVAL);
+        return JsonValue();
+      }
+    }
+    if( current.is_valid() == false ){
+      API_RETURN_VALUE_ASSIGN_ERROR(
+        JsonValue(),
+        "invalid path",
+        EINVAL);
+      return JsonValue();
+    }
+  }
+  return current;
 }
 
 JsonArray::JsonArray() { m_value = JsonArray::create(); }

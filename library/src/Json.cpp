@@ -192,7 +192,7 @@ const JsonObject &JsonValue::to_object() const {
   return static_cast<const JsonObject &>(*this);
 }
 
-JsonObject JsonObjectIterator::operator*() const noexcept {
+JsonValue JsonObjectIterator::operator *() const noexcept {
   return JsonValue(m_json_value)
     .to_object()
     .at(api()->object_iter_key(m_json_iter));
@@ -491,6 +491,17 @@ JsonObject::KeyList JsonObject::get_key_list() const {
 
 JsonValue JsonObject::at(const var::StringView key) const {
   return JsonValue(api()->object_get(m_value, Key(key).cstring));
+}
+
+JsonValue JsonObject::at(size_t offset) const {
+  size_t count = 0;
+  for(const auto & child: *this){
+    if( count == offset ){
+      return child;
+    }
+    count++;
+  }
+  return JsonValue();
 }
 
 JsonValue

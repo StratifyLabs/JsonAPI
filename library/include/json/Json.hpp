@@ -150,6 +150,7 @@ protected:
 private:
   friend class JsonDocument;
   friend class JsonObjectIterator;
+  friend class JsonArrayIterator;
   friend class JsonObject;
   friend class JsonArray;
   friend class JsonTrue;
@@ -219,7 +220,7 @@ public:
     return m_json_iter != a.m_json_iter;
   }
 
-  JsonObject operator*() const noexcept;
+  JsonValue operator*() const noexcept;
 
   JsonObjectIterator &operator++() {
     m_json_iter = api()->object_iter_next(m_json_value, m_json_iter);
@@ -306,6 +307,7 @@ public:
   JsonObject &clear();
 
   JsonValue at(const var::StringView key) const;
+  JsonValue at(size_t offset) const;
 
   KeyList get_key_list() const;
 
@@ -313,11 +315,57 @@ private:
   json_t *create() override;
 };
 
+class JsonArrayIterator : private JsonApi {
+public:
+
+  JsonArrayIterator() = default;
+
+  JsonArrayIterator(json_t * value, size_t index){
+    m_json_value = value;
+    m_index = index;
+  }
+
+
+  bool operator!=(JsonArrayIterator const &a) const noexcept {
+    return m_index != a.m_index;
+  }
+
+  JsonValue operator*() const noexcept {
+    return api()->array_get(m_json_value, m_index);
+  }
+
+  JsonArrayIterator &operator++() {
+    m_index++;
+    return *this;
+  }
+
+
+private:
+  json_t * m_json_value = nullptr;
+  size_t m_index = 0;
+};
+
 class JsonArray : public JsonValue {
 public:
   JsonArray();
   JsonArray(const JsonArray &value);
   JsonArray &operator=(const JsonArray &value);
+
+  JsonArrayIterator begin() const noexcept {
+    return JsonArrayIterator(m_value, 0);
+  }
+
+  JsonArrayIterator end() const noexcept {
+    return JsonArrayIterator(m_value, count());
+  }
+
+  JsonArrayIterator cbegin() const noexcept {
+    return JsonArrayIterator(m_value, 0);
+  }
+
+  JsonArrayIterator cend() const noexcept {
+    return JsonArrayIterator(m_value, count());
+  }
 
   explicit JsonArray(const var::StringList &list);
   explicit JsonArray(const var::StringViewList &list);

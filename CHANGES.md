@@ -2,6 +2,7 @@
 
 ## New Features
 
+- Update `CMakeLists.txt` to require setup of SDK in a super-project
 - Add an iterator for `JsonArray` to support range-for loops
 - Add an iterator for `JsonObject` to support range-for loops
 - Add `find()` to `JsonValue` to find a sub-value based on a path e.g "top/[4]/next"

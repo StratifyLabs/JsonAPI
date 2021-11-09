@@ -1,4 +1,4 @@
-# Version 1.1.0
+# Version 1.2.0
 
 ## New Features
 
@@ -6,6 +6,15 @@
 - Add an iterator for `JsonArray` to support range-for loops
 - Add an iterator for `JsonObject` to support range-for loops
 - Add `find()` to `JsonValue` to find a sub-value based on a path e.g "top/[4]/next"
+
+## Bug Fixes
+
+- None
+
+# Version 1.1.0
+
+## New Features
+
 - Add method `native_value()` to `JsonValue` which can be used for object tracing and debugging.
 
 ## Bug Fixes

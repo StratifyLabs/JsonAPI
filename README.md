@@ -9,14 +9,17 @@ The JsonAPI uses the Stratify Labs [API framework](https://github.com/StratifyLa
 - Thread Local Error Contexts
 - Method Chaining
 - Filesystem Inspired Abstraction
-- Strong Arugments
+- Strong Arguments
 - RAII Everywhere
 
 More details of these principles are available at https://github.com/StratifyLabs/API.
 
 ## Building
 
-The JsonAPI is designed to be built as part of an SDK super project. Instructions for building art at the [SDK API project](https://github.com/StratifyLabs/SdkAPI).
+The `JsonAPI` library is designed to be a CMake sub-project. To build, please use one of these projects:
+
+- Desktop [Command Line Interface](https://github.com/StratifyLabs/cli)
+- [Stratify OS on Nucleo-144](https://github.com/StratifyLabs/StratifyOS-Nucleo144)
 
 ## Usage
 

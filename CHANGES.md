@@ -1,3 +1,13 @@
+# Version 1.3.0
+
+## New Features
+
+- None yet
+
+## Bug Fixes
+
+- Fixed move operators
+
 # Version 1.2.0
 
 ## New Features

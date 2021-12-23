@@ -162,7 +162,7 @@ private:
   friend class JsonKeyValue;
   static JsonApi m_api;
 
-  json_t *m_value;
+  json_t *m_value = nullptr;
 
   void add_reference(json_t *value);
 };

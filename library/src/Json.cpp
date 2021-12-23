@@ -149,17 +149,11 @@ void JsonValue::add_reference(json_t *value) {
 }
 
 JsonValue::JsonValue(JsonValue &&a) {
-  m_value = a.m_value;
-  if (this != &a) { // check for a move to self
-    a.m_value = nullptr;
-  }
+  std::swap(m_value, a.m_value);
 }
 
 JsonValue &JsonValue::operator=(JsonValue &&a) {
-  if (this != &a) {
-    m_value = a.m_value;
-    a.m_value = nullptr;
-  }
+  std::swap(m_value, a.m_value);
   return *this;
 }
 

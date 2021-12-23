@@ -159,8 +159,10 @@ JsonValue &JsonValue::operator=(JsonValue &&a) {
 
 JsonValue::~JsonValue() {
   // only decref if object was created (not just a reference)
-  api()->decref(m_value);
-  m_value = nullptr;
+  if (m_value) {
+    api()->decref(m_value);
+    m_value = nullptr;
+  }
 }
 
 JsonValue JsonValue::lookup(const var::StringView key_path) const {
@@ -186,7 +188,7 @@ const JsonObject &JsonValue::to_object() const {
   return static_cast<const JsonObject &>(*this);
 }
 
-JsonValue JsonObjectIterator::operator *() const noexcept {
+JsonValue JsonObjectIterator::operator*() const noexcept {
   return JsonValue(m_json_value)
     .to_object()
     .at(api()->object_iter_key(m_json_iter));
@@ -489,8 +491,8 @@ JsonValue JsonObject::at(const var::StringView key) const {
 
 JsonValue JsonObject::at(size_t offset) const {
   size_t count = 0;
-  for(const auto & child: *this){
-    if( count == offset ){
+  for (const auto &child : *this) {
+    if (count == offset) {
       return child;
     }
     count++;
@@ -563,11 +565,8 @@ JsonValue::find(const var::StringView path, const char *delimiter) const {
         return JsonValue();
       }
     }
-    if( current.is_valid() == false ){
-      API_RETURN_VALUE_ASSIGN_ERROR(
-        JsonValue(),
-        "invalid path",
-        EINVAL);
+    if (current.is_valid() == false) {
+      API_RETURN_VALUE_ASSIGN_ERROR(JsonValue(), "invalid path", EINVAL);
       return JsonValue();
     }
   }

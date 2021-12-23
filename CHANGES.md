@@ -9,7 +9,7 @@
 
 ## Bug Fixes
 
-- None
+- Fixed move operators
 
 # Version 1.1.0
 

@@ -202,12 +202,12 @@ const JsonArray &JsonValue::to_array() const {
 
 JsonArray &JsonValue::to_array() { return static_cast<JsonArray &>(*this); }
 
-int JsonValue::create_if_not_valid() {
+int JsonValue::create_if_not_valid(CreateCallback create_callback) {
   API_RETURN_VALUE_IF_ERROR(-1);
   if (is_valid()) {
     return 0;
   }
-  m_value = create();
+  m_value = create_callback();
   if (m_value == nullptr) {
     API_SYSTEM_CALL("", -1);
     return -1;
@@ -364,16 +364,6 @@ bool JsonValue::to_bool() const {
 
 JsonObject::JsonObject() { m_value = JsonObject::create(); }
 
-JsonObject::JsonObject(const JsonObject &value) {
-  add_reference(value.m_value);
-}
-
-JsonObject &JsonObject::operator=(const JsonObject &value) {
-  api()->decref(m_value);
-  add_reference(value.m_value);
-  return *this;
-}
-
 json_t *JsonObject::create() {
   API_RETURN_VALUE_IF_ERROR(nullptr);
   json_t *result = API_SYSTEM_CALL_NULL("", api()->create_object());
@@ -426,7 +416,7 @@ JsonObject &JsonObject::insert_bool(const var::StringView key, bool value) {
 
 JsonObject &
 JsonObject::insert(const var::StringView key, const JsonValue &value) {
-  if (create_if_not_valid() < 0) {
+  if (create_if_not_valid(create) < 0) {
     return *this;
   }
 
@@ -445,6 +435,11 @@ JsonObject &JsonObject::update(const JsonValue &value, UpdateFlags o_flags) {
 
   if (o_flags & UpdateFlags::missing) {
     API_SYSTEM_CALL("", api()->object_update_missing(m_value, value.m_value));
+    return *this;
+  }
+
+  if (o_flags & UpdateFlags::recursive) {
+    API_SYSTEM_CALL("", api()->object_update_recursive(m_value, value.m_value));
     return *this;
   }
 
@@ -625,7 +620,7 @@ JsonArray::JsonArray(const var::Vector<s32> &list) {
 }
 
 JsonArray &JsonArray::append(const JsonValue &value) {
-  if (create_if_not_valid() < 0) {
+  if (create_if_not_valid(create) < 0) {
     return *this;
   }
   API_SYSTEM_CALL("", api()->array_append(m_value, value.m_value));
@@ -633,7 +628,7 @@ JsonArray &JsonArray::append(const JsonValue &value) {
 }
 
 JsonArray &JsonArray::append(const JsonArray &array) {
-  if (create_if_not_valid() < 0) {
+  if (create_if_not_valid(create) < 0) {
     return *this;
   }
   API_SYSTEM_CALL("", api()->array_extend(m_value, array.m_value));
@@ -641,7 +636,7 @@ JsonArray &JsonArray::append(const JsonArray &array) {
 }
 
 JsonArray &JsonArray::insert(size_t position, const JsonValue &value) {
-  if (create_if_not_valid() < 0) {
+  if (create_if_not_valid(create) < 0) {
     return *this;
   }
   API_SYSTEM_CALL("", api()->array_insert(m_value, position, value.m_value));

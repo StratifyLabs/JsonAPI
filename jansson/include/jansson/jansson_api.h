@@ -38,6 +38,10 @@ typedef struct {
   int (*object_update)(json_t *object, json_t *other);
   int (*object_update_existing)(json_t *object, json_t *other);
   int (*object_update_missing)(json_t *object, json_t *other);
+  int (*object_update_new)(json_t *object, json_t *other);
+  int (*object_update_existing_new)(json_t *object, json_t *other);
+  int (*object_update_missing_new)(json_t *object, json_t *other);
+  int (*object_update_recursive)(json_t *object, json_t *other);
   void *(*object_iter)(json_t *object);
   void *(*object_iter_at)(json_t *object, const char *key);
   void *(*object_key_to_iter)(const char *key);

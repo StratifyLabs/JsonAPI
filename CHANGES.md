@@ -2,11 +2,14 @@
 
 ## New Features
 
-- None yet
+- Remove virtual functions from `json::JsonValue`
+  - Make `create()` functions static
+- Add `recursive` to `json::JsonObject::UpdateFlags`
 
 ## Bug Fixes
 
-- Fixed move operators
+- Remove `json::JsonValue::to_value()` which returned `*this`
+- Remove copy constructor and operator from `json::JsonObject` this was creating an extra reference and possibly leaking memory
 
 # Version 1.2.0
 

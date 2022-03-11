@@ -2,6 +2,7 @@
 
 ## New Features
 
+- Add `doxygen` file for generating documents
 - Remove virtual functions from `json::JsonValue`
   - Make `create()` functions static
 - Add `recursive` to `json::JsonObject::UpdateFlags`

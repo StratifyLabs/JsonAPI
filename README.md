@@ -27,7 +27,7 @@ Under the hood, all memory management is handled by [jansson](https://github.com
 
 You can easily create a JSON object using method chaining:
 
-```c++
+```cpp
 #include <json.hpp>
 
 //create an object
@@ -60,7 +60,7 @@ const auto b = object.at("true").to_bool();
 
 You can load and save JSON documents using `JsonDocument`.
 
-```c++
+```cpp
 
 #include <fs.hpp>
 #include <json.hpp>

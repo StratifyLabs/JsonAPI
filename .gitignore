@@ -3,3 +3,4 @@ cmake*_arm/
 CMakeLists.txt.user
 cmake*_link/
 jansson/jansson/
+doc/

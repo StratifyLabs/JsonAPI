@@ -1,8 +1,8 @@
 {
-   "description": "HelloWorld is a simple demo app that uses the standard output to print a simple message.",
-   "github": "https://github.com/StratifyLabs/HelloWorld",
-   "name": "HelloWorld",
-   "permissions": "private",
+   "description": "tests for JsonAPI.",
+   "github": "https://github.com/StratifyLabs/JsonAPI",
+   "name": "tests",
+   "permissions": "public",
    "publisher": "Stratify Labs, Inc",
    "tags": "utility",
    "type": "app",

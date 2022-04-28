@@ -88,8 +88,6 @@ public:
   bool is_false() const { return type() == Type::false_; }
   bool is_null() const { return type() == Type::null; }
 
-  JsonValue &to_value() { return *this; }
-  const JsonValue &to_value() const { return *this; }
   const JsonObject &to_object() const;
   JsonObject &to_object();
   const JsonArray &to_array() const;
@@ -142,8 +140,8 @@ protected:
     const char *cstring;
   };
 
-  int create_if_not_valid();
-  virtual json_t *create() { return 0; }
+  using CreateCallback = json_t* (*)();
+  int create_if_not_valid(CreateCallback create_callback);
 
   static int translate_json_error(int json_error);
 
@@ -237,9 +235,6 @@ class JsonObject : public JsonValue {
 public:
   JsonObject();
 
-  JsonObject(const JsonObject &value);
-  JsonObject &operator=(const JsonObject &value);
-
 
   JsonObjectIterator begin() const noexcept {
     return JsonObjectIterator(m_value);
@@ -296,7 +291,8 @@ public:
     null = 0x00,
     existing = 0x01,
     missing = 0x02,
-    missing_and_existing = 0x03
+    missing_and_existing = 0x03,
+    recursive = 0x04,
   };
 
   JsonObject &update(const JsonValue &value,
@@ -312,7 +308,7 @@ public:
   KeyList get_key_list() const;
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonArrayIterator : private JsonApi {
@@ -417,7 +413,7 @@ public:
   var::Vector<bool> bool_list() const;
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonString : public JsonValue {
@@ -430,7 +426,7 @@ public:
   const char *cstring() const;
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonReal : public JsonValue {
@@ -439,7 +435,7 @@ public:
   explicit JsonReal(float value);
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonInteger : public JsonValue {
@@ -448,7 +444,7 @@ public:
   explicit JsonInteger(int value);
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonNull : public JsonValue {
@@ -456,7 +452,7 @@ public:
   JsonNull();
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonTrue : public JsonValue {
@@ -464,7 +460,7 @@ public:
   JsonTrue();
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 class JsonFalse : public JsonValue {
@@ -472,7 +468,7 @@ public:
   JsonFalse();
 
 private:
-  json_t *create() override;
+  static json_t *create();
 };
 
 API_OR_NAMED_FLAGS_OPERATOR(JsonObject, UpdateFlags)

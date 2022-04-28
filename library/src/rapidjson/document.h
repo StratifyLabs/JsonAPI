@@ -98,16 +98,20 @@ struct GenericMember {
     \see GenericMember, GenericValue::MemberIterator, GenericValue::ConstMemberIterator
  */
 template <bool Const, typename Encoding, typename Allocator>
-class GenericMemberIterator
-    : public std::iterator<std::random_access_iterator_tag
-        , typename internal::MaybeAddConst<Const,GenericMember<Encoding,Allocator> >::Type> {
+class GenericMemberIterator {
+
+  using PlainType = GenericMember<Encoding,Allocator>;
+  using ValueType = typename internal::MaybeAddConst<Const,PlainType>::Type;
+
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = ValueType;
+    using difference_type = ptrdiff_t;
+    using pointer = ValueType*;
+    using reference = ValueType&;
 
     friend class GenericValue<Encoding,Allocator>;
     template <bool, typename, typename> friend class GenericMemberIterator;
 
-    typedef GenericMember<Encoding,Allocator> PlainType;
-    typedef typename internal::MaybeAddConst<Const,PlainType>::Type ValueType;
-    typedef std::iterator<std::random_access_iterator_tag,ValueType> BaseType;
 
 public:
     //! Iterator type itself
@@ -118,11 +122,11 @@ public:
     typedef GenericMemberIterator<false,Encoding,Allocator> NonConstIterator;
 
     //! Pointer to (const) GenericMember
-    typedef typename BaseType::pointer         Pointer;
+    typedef ValueType*         Pointer;
     //! Reference to (const) GenericMember
-    typedef typename BaseType::reference       Reference;
+    typedef ValueType&       Reference;
     //! Signed integer type (e.g. \c ptrdiff_t)
-    typedef typename BaseType::difference_type DifferenceType;
+    typedef difference_type DifferenceType;
 
     //! Default constructor (singular value)
     /*! Creates an iterator pointing to no element.

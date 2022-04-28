@@ -9,6 +9,7 @@
 
 ## Bug Fixes
 
+- Remove deprecated use of `std::iterator` in rapidjson
 - Use `cpp` rather than `c++` for markdown code blocks
 - Remove `json::JsonValue::to_value()` which returned `*this`
 - Remove copy constructor and operator from `json::JsonObject` this was creating an extra reference and possibly leaking memory

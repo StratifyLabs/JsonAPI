@@ -1,3 +1,11 @@
+# Version 1.4.0
+
+## New Features
+
+## Bug Fixes
+
+- Remove deprecated use of `std::iterator` in rapidjson
+
 # Version 1.3.0
 
 ## New Features

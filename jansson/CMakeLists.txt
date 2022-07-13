@@ -1,13 +1,5 @@
 cmake_minimum_required (VERSION 3.12)
 
-if(NOT SOS_SDK_PATH)
-	set(SOS_SDK_PATH $ENV{SOS_SDK_PATH})
-endif()
-
-set(CMAKE_MODULE_PATH ${SOS_SDK_PATH}/cmake)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_MODULE_PATH}/sos-toolchain.cmake)
-include(sos-sdk)
-
 set(GIT_REPOSITORY "https://github.com/akheron/jansson.git")
 set(GIT_BRANCH "2.13")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
@@ -50,11 +42,11 @@ set(PUBLIC_SOURCELIST
 	include/jansson/jansson_config.h
 )
 
-if(SOS_IS_ARM)
+if(CMSDK_IS_ARM)
 	set(LIB_OPTION kernel)
 endif()
 
-sos_sdk_library_target(RELEASE ${PROJECT_NAME} "${LIB_OPTION}" release ${SOS_ARCH})
+cmsdk_library_target(RELEASE ${PROJECT_NAME} "${LIB_OPTION}" release ${CMSDK_ARCH})
 
 add_library(${RELEASE_TARGET} STATIC)
 
@@ -89,11 +81,11 @@ target_include_directories(${RELEASE_TARGET}
 	jansson/src
 	)
 
-sos_sdk_library_target(DEBUG ${PROJECT_NAME} "${LIB_OPTION}" debug ${SOS_ARCH})
+cmsdk_library_target(DEBUG ${PROJECT_NAME} "${LIB_OPTION}" debug ${CMSDK_ARCH})
 add_library(${DEBUG_TARGET} STATIC)
-sos_sdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
-sos_sdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${SOS_ARCH} "")
-sos_sdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${SOS_ARCH} "")
+cmsdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
+cmsdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${CMSDK_ARCH} "")
+cmsdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${CMSDK_ARCH} "")
 
 install(FILES
 	./jansson/src/jansson.h
@@ -102,4 +94,4 @@ install(FILES
 	DESTINATION include/jansson)
 
 install(FILES ${PROJECT_NAME}.cmake
-	DESTINATION ${SOS_SDK_PATH}/cmake/targets)
+	DESTINATION ${CMSDK_PATH}/cmake/targets)

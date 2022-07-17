@@ -94,4 +94,4 @@ install(FILES
 	DESTINATION include/jansson)
 
 install(FILES ${PROJECT_NAME}.cmake
-	DESTINATION ${CMSDK_PATH}/cmake/targets)
+	DESTINATION ${CMSDK_LOCAL_PATH}/cmake/targets)

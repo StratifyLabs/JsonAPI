@@ -5,7 +5,7 @@ set(GIT_BRANCH "2.13")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 	message(STATUS "Need to clone for the first call to cmake")
 	execute_process(
-		COMMAND git clone --branch ${GIT_BRANCH} ${GIT_REPOSITORY}
+		COMMAND git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 		)
 endif()

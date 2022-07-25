@@ -2,6 +2,8 @@
 
 ## New Features
 
+- Update cmake files for use with `CMakeSDK` v2.0
+
 ## Bug Fixes
 
 - Remove deprecated use of `std::iterator` in rapidjson

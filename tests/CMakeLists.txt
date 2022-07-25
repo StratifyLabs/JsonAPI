@@ -1,7 +1,7 @@
 
 
 set(DEPENDENCIES JsonAPI TestAPI FsAPI)
-if(SOS_IS_LINK)
+if(CMSDK_IS_LINK)
 	#Stratify OS will have jansson include in the kernel
 	list(APPEND DEPENDENCIES jansson)
 endif()

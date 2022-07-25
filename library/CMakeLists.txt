@@ -1,12 +1,12 @@
 
 set(LIBRARIES FsAPI ChronoAPI VarAPI)
-if(SOS_IS_LINK)
+if(CMSDK_IS_LINK)
 	list(APPEND LIBRARIES jansson)
 endif()
 
 api_add_api_library(JsonAPI "${LIBRARIES}")
 
-if(SOS_IS_ARM AND API_IS_SDK)
+if(CMSDK_IS_ARM AND API_IS_SDK)
 	macro(add_jansson_include ARCH)
 		target_include_directories(JsonAPI_debug_${ARCH}
 			PUBLIC
@@ -25,8 +25,8 @@ if(SOS_IS_ARM AND API_IS_SDK)
 			)
 	endmacro()
 
-	add_jansson_include(${SOS_ARCH})
-	foreach(ARCH ${SOS_ARCH_LIST})
+	add_jansson_include(${CMSDK_ARCH})
+	foreach(ARCH ${CMSDK_ARCH_LIST})
 		add_jansson_include(${ARCH})
 	endforeach()
 endif()

@@ -148,9 +148,7 @@ void JsonValue::add_reference(json_t *value) {
   api()->incref(value);
 }
 
-JsonValue::JsonValue(JsonValue &&a) {
-  std::swap(m_value, a.m_value);
-}
+JsonValue::JsonValue(JsonValue &&a) { std::swap(m_value, a.m_value); }
 
 JsonValue &JsonValue::operator=(JsonValue &&a) {
   std::swap(m_value, a.m_value);
@@ -397,7 +395,7 @@ json_t *JsonFalse::create() {
 
 json_t *JsonString::create() {
   API_RETURN_VALUE_IF_ERROR(nullptr);
-  return API_SYSTEM_CALL_NULL("", api()->create_string(""));
+  return API_SYSTEM_CALL_NULL("", api()->create_stringn("", 0));
 }
 
 json_t *JsonNull::create() {
@@ -422,7 +420,7 @@ JsonObject::insert(const var::StringView key, const JsonValue &value) {
 
   API_SYSTEM_CALL(
     "",
-    api()->object_set(m_value, Key(key).cstring, value.m_value));
+    api()->object_setn(m_value, key.data(), key.length(), value.m_value));
   return *this;
 }
 
@@ -449,7 +447,7 @@ JsonObject &JsonObject::update(const JsonValue &value, UpdateFlags o_flags) {
 
 JsonObject &JsonObject::remove(const var::StringView key) {
   API_RETURN_VALUE_IF_ERROR(*this);
-  API_SYSTEM_CALL("", api()->object_del(m_value, Key(key).cstring));
+  API_SYSTEM_CALL("", api()->object_deln(m_value, key.data(), key.length()));
   return *this;
 }
 
@@ -481,7 +479,7 @@ JsonObject::KeyList JsonObject::get_key_list() const {
 }
 
 JsonValue JsonObject::at(const var::StringView key) const {
-  return JsonValue(api()->object_get(m_value, Key(key).cstring));
+  return JsonValue(api()->object_getn(m_value, key.data(), key.length()));
 }
 
 JsonValue JsonObject::at(size_t offset) const {
@@ -695,7 +693,10 @@ JsonString::JsonString() { m_value = JsonString::create(); }
 
 JsonString::JsonString(const char *str) {
   API_RETURN_IF_ERROR();
-  m_value = API_SYSTEM_CALL_NULL("", api()->create_string(str));
+  const auto value = StringView{str};
+  m_value = API_SYSTEM_CALL_NULL(
+    "",
+    api()->create_stringn(value.data(), value.length()));
 }
 
 JsonString::JsonString(const var::StringView str) {

@@ -7,6 +7,7 @@
 ## Bug Fixes
 
 - Remove deprecated use of `std::iterator` in rapidjson
+- Remove requirement to null terminate underlying jansson API calls
 
 # Version 1.3.0
 

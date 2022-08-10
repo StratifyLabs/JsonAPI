@@ -9,15 +9,13 @@
 extern "C" {
 #endif
 
-#define JANSSON_API_T 1
+#define JANSSON_API_T 2
 
 typedef struct {
   api_t sos_api;
   json_t *(*create_object)();
   json_t *(*create_array)();
-  json_t *(*create_string)(const char *value);
   json_t *(*create_stringn)(const char *value, size_t len);
-  json_t *(*create_string_nocheck)(const char *value);
   json_t *(*create_stringn_nocheck)(const char *value, size_t len);
   json_t *(*create_integer)(json_int_t value);
   json_t *(*create_real)(double value);
@@ -31,9 +29,9 @@ typedef struct {
 
   void (*object_seed)(size_t seed);
   size_t (*object_size)(const json_t *object);
-  json_t *(*object_get)(const json_t *object, const char *key);
-  int (*object_set)(json_t *object, const char *key, json_t *value);
-  int (*object_del)(json_t *object, const char *key);
+  json_t *(*object_getn)(const json_t *object, const char *key, size_t key_len);
+  int (*object_setn)(json_t *object, const char *key, size_t key_len, json_t *value);
+  int (*object_deln)(json_t *object, const char *key, size_t key_len);
   int (*object_clear)(json_t *object);
   int (*object_update)(json_t *object, json_t *other);
   int (*object_update_existing)(json_t *object, json_t *other);

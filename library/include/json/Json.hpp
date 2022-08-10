@@ -128,7 +128,6 @@ public:
 
   JsonValue find(const var::StringView path, const char* delimiter = "/") const;
 
-
 protected:
   struct Key {
     Key(const var::StringView value)

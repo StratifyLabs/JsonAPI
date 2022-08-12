@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.12)
 
 set(GIT_REPOSITORY "https://github.com/akheron/jansson.git")
-set(GIT_BRANCH "2.13")
+set(GIT_BRANCH "v2.14")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 	message(STATUS "Need to clone for the first call to cmake")
 	execute_process(

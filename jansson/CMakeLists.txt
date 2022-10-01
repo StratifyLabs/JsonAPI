@@ -46,9 +46,13 @@ if(CMSDK_IS_ARM)
 	set(LIB_OPTION kernel)
 endif()
 
-cmsdk_library_target(RELEASE ${PROJECT_NAME} "${LIB_OPTION}" release ${CMSDK_ARCH})
-
-add_library(${RELEASE_TARGET} STATIC)
+cmsdk2_add_library(
+	TARGET RELEASE_TARGET
+	NAME ${PROJECT_NAME}
+	OPTION "${LIB_OPTION}"
+	CONFIG release
+	ARCH ${CMSDK_ARCH}
+)
 
 target_sources(${RELEASE_TARGET}
 	PUBLIC
@@ -81,11 +85,25 @@ target_include_directories(${RELEASE_TARGET}
 	jansson/src
 	)
 
-cmsdk_library_target(DEBUG ${PROJECT_NAME} "${LIB_OPTION}" debug ${CMSDK_ARCH})
-add_library(${DEBUG_TARGET} STATIC)
-cmsdk_copy_target(${RELEASE_TARGET} ${DEBUG_TARGET})
-cmsdk_library_add_arch_targets("${DEBUG_OPTIONS}" ${CMSDK_ARCH} "")
-cmsdk_library_add_arch_targets("${RELEASE_OPTIONS}" ${CMSDK_ARCH} "")
+cmsdk2_add_library(
+	TARGET DEBUG_TARGET
+	NAME ${PROJECT_NAME}
+	OPTION "${LIB_OPTION}"
+	CONFIG debug
+	ARCH ${CMSDK_ARCH}
+)
+cmsdk2_copy_target(
+	SOURCE ${RELEASE_TARGET}
+	DESTINATION ${DEBUG_TARGET}
+)
+
+cmsdk2_update_library_for_architecture(
+	TARGET ${RELEASE_TARGET}
+)
+
+cmsdk2_update_library_for_architecture(
+	TARGET ${DEBUG_TARGET}
+)
 
 install(FILES
 	./jansson/src/jansson.h

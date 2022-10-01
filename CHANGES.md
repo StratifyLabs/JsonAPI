@@ -3,6 +3,7 @@
 ## New Features
 
 - Update cmake files for use with `CMakeSDK` v2.0
+- Use `cmsdk2_` functions for build
 
 ## Bug Fixes
 

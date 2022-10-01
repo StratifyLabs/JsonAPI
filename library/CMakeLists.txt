@@ -1,32 +1,21 @@
-
 set(LIBRARIES FsAPI ChronoAPI VarAPI)
 if(CMSDK_IS_LINK)
 	list(APPEND LIBRARIES jansson)
 endif()
 
-api_add_api_library(JsonAPI "${LIBRARIES}")
+api2_add_library(
+	NAME JsonAPI
+	DEPENDENCIES ${LIBRARIES}
+)
 
 if(CMSDK_IS_ARM AND API_IS_SDK)
-	macro(add_jansson_include ARCH)
-		target_include_directories(JsonAPI_debug_${ARCH}
+	foreach(TARGET ${TARGET_LIST})
+		target_include_directories(${TARGET}
 			PUBLIC
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/include>
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/include/jansson>
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/jansson/src>
 			PRIVATE
 			)
-
-		target_include_directories(JsonAPI_release_${ARCH}
-			PUBLIC
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/include>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/include/jansson>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../jansson/jansson/src>
-			PRIVATE
-			)
-	endmacro()
-
-	add_jansson_include(${CMSDK_ARCH})
-	foreach(ARCH ${CMSDK_ARCH_LIST})
-		add_jansson_include(${ARCH})
 	endforeach()
 endif()

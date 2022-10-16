@@ -1,9 +1,15 @@
+# Version 1.5.0
+
+## New Features
+
+- Migrate to `API` v1.6
+- Use `cmsdk2_` functions for build
+
 # Version 1.4.0
 
 ## New Features
 
 - Update cmake files for use with `CMakeSDK` v2.0
-- Use `cmsdk2_` functions for build
 
 ## Bug Fixes
 

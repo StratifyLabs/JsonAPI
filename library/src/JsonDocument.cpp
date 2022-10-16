@@ -4,14 +4,31 @@
 #include "xml2json.hpp"
 #endif
 
-#include <printer.hpp>
 #include <fs.hpp>
+#include <printer.hpp>
 #include <var.hpp>
 
 #include "json/JsonDocument.hpp"
 
 using namespace var;
 using namespace json;
+
+namespace {
+int write_file_data(const char *buffer, size_t buflen, void *data) {
+  reinterpret_cast<const fs::File *>(data)->write(View(buffer, buflen));
+  if (api::ExecutionContext::return_value() != buflen) {
+    return -1;
+  }
+  return 0;
+}
+
+size_t read_file_data(void *buffer, size_t buflen, void *data) {
+  return reinterpret_cast<const fs::File *>(data)
+    ->read(View(buffer, buflen))
+    .return_value();
+}
+
+} // namespace
 
 #if defined __link
 JsonValue JsonDocument::from_xml_string(const char *xml, IsXmlFlat is_flat) {
@@ -63,12 +80,6 @@ var::String JsonDocument::to_string(const JsonValue &value) const {
   return result;
 }
 
-size_t JsonDocument::read_file_data(void *buffer, size_t buflen, void *data) {
-  return reinterpret_cast<const fs::File *>(data)
-    ->read(buffer, buflen)
-    .return_value();
-}
-
 JsonValue JsonDocument::load(const fs::FileObject &file) {
   API_RETURN_VALUE_IF_ERROR(JsonValue());
   JsonValue value;
@@ -80,17 +91,6 @@ JsonValue JsonDocument::load(const fs::FileObject &file) {
       json_flags(),
       &m_error.m_value));
   return value;
-}
-
-int JsonDocument::write_file_data(
-  const char *buffer,
-  size_t buflen,
-  void *data) {
-  reinterpret_cast<const fs::File *>(data)->write(buffer, buflen);
-  if (return_value() != buflen) {
-    return -1;
-  }
-  return 0;
 }
 
 JsonDocument &
@@ -300,12 +300,14 @@ const JsonDocument &JsonDocument::seek(
   return *this;
 }
 
-bool JsonDocument::is_valid(const fs::FileObject & file, printer::Printer * printer){
+bool JsonDocument::is_valid(
+  const fs::FileObject &file,
+  printer::Printer *printer) {
   api::ErrorGuard error_guard;
   JsonDocument document;
   document.load(file);
-  if( is_error() && printer ){
-      printer->object("JsonDocumentError", document.error());
+  if (is_error() && printer) {
+    printer->object("JsonDocumentError", document.error());
   }
   return is_success();
 }

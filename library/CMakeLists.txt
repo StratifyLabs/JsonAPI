@@ -6,6 +6,7 @@ endif()
 api2_add_library(
 	NAME JsonAPI
 	DEPENDENCIES ${LIBRARIES}
+	TARGETS TARGET_LIST
 )
 
 if(CMSDK_IS_ARM AND API_IS_SDK)

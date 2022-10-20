@@ -6,6 +6,8 @@
 #define VERSION "0.1"
 #include "sys/Cli.hpp"
 
+using namespace test;
+
 void segfault(int a) { API_ASSERT(false); }
 
 int main(int argc, char *argv[]) {

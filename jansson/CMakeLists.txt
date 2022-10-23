@@ -1,4 +1,3 @@
-cmake_minimum_required (VERSION 3.12)
 set(GIT_REPOSITORY "https://github.com/akheron/jansson.git")
 set(GIT_BRANCH "v2.14")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)

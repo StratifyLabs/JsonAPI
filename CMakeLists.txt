@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.12)
 
-project(JsonAPI CXX)
+project(JsonAPI
+	LANGUAGES CXX C
+	VERSION 1.5.1)
 include(CTest)
 
 add_subdirectory(jansson jansson)

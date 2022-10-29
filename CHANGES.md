@@ -1,3 +1,7 @@
+# Version 1.5.1 (unreleased)
+
+- Fix version in CMakeLists.txt
+
 # Version 1.5.0
 
 ## New Features

@@ -1,6 +1,14 @@
-# Version 1.5.1
+# Version 1.5.2
+
+## Bug Fixes
 
 - Fix version in CMakeLists.txt
+
+# Version 1.5.1
+
+## Bug Fixes
+
+- 1.5.0 was released on the wrong branch
 
 # Version 1.5.0
 

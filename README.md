@@ -31,7 +31,7 @@ You can easily create a JSON object using method chaining:
 #include <json.hpp>
 
 //create an object
-JsonObject object = JsonObject()
+auto object = JsonObject()
                       .insert("string", JsonString("string"))
                       .insert("integerString", JsonString("100"))
                       .insert("integer", JsonInteger(10))
@@ -67,5 +67,5 @@ You can load and save JSON documents using `JsonDocument`.
 
 //using the object above
 JsonDocument().save(object, File(File::IsOverwrite::yes, "object.json"));
-JsonObject loaded_object = JsonDocument().load(File("object.json"));
+auto loaded_object = JsonDocument().load(File("object.json"));
 ```

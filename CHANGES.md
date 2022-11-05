@@ -1,3 +1,9 @@
+# Version 1.5.3 (unreleased)
+
+## Bug Fixes
+
+- Removed extra include files from tests
+
 # Version 1.5.2
 
 ## Bug Fixes

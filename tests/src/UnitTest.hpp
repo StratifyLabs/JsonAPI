@@ -1,12 +1,14 @@
 ﻿
 #include <cstdio>
 
-#include <fs.hpp>
 #include <printer.hpp>
 #include <test/Test.hpp>
-#include <var.hpp>
+#include <fs/DataFile.hpp>
 
 #include "json.hpp"
+
+using namespace fs;
+using namespace var;
 
 class UnitTest : public test::Test {
 public:

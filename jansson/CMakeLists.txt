@@ -1,89 +1,101 @@
 set(GIT_REPOSITORY "https://github.com/akheron/jansson.git")
 set(GIT_BRANCH "v2.14")
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/jansson)
-	message(STATUS "Need to clone for the first call to cmake")
-	execute_process(
-		COMMAND git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY}
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		)
+  message(STATUS "Need to clone for the first call to cmake")
+  execute_process(
+    COMMAND git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 endif()
 project(jansson C)
 set(SOURCES_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/jansson/src)
 set(PRIVATE_SOURCELIST
-	${SOURCES_PREFIX}/dump.c
-	${SOURCES_PREFIX}/error.c
-	${SOURCES_PREFIX}/hashtable.c
-	${SOURCES_PREFIX}/hashtable_seed.c
-	${SOURCES_PREFIX}/load.c
-	${SOURCES_PREFIX}/memory.c
-	${SOURCES_PREFIX}/pack_unpack.c
-	${SOURCES_PREFIX}/strbuffer.c
-	${SOURCES_PREFIX}/strconv.c
-	${SOURCES_PREFIX}/utf.c
-	${SOURCES_PREFIX}/value.c
-	${SOURCES_PREFIX}/hashtable.h
-	${SOURCES_PREFIX}/jansson_private.h
-	${SOURCES_PREFIX}/lookup3.h
-	${SOURCES_PREFIX}/strbuffer.h
-	${SOURCES_PREFIX}/utf.h
-	jansson_private_config.h
-	jansson_api.c)
+  ${SOURCES_PREFIX}/dump.c
+  ${SOURCES_PREFIX}/error.c
+  ${SOURCES_PREFIX}/hashtable.c
+  ${SOURCES_PREFIX}/hashtable_seed.c
+  ${SOURCES_PREFIX}/load.c
+  ${SOURCES_PREFIX}/memory.c
+  ${SOURCES_PREFIX}/pack_unpack.c
+  ${SOURCES_PREFIX}/strbuffer.c
+  ${SOURCES_PREFIX}/strconv.c
+  ${SOURCES_PREFIX}/utf.c
+  ${SOURCES_PREFIX}/value.c
+  ${SOURCES_PREFIX}/hashtable.h
+  ${SOURCES_PREFIX}/jansson_private.h
+  ${SOURCES_PREFIX}/lookup3.h
+  ${SOURCES_PREFIX}/strbuffer.h
+  ${SOURCES_PREFIX}/utf.h
+  jansson_private_config.h
+  jansson_api.c)
 set(PUBLIC_SOURCELIST
-	${SOURCES_PREFIX}/jansson.h
-	include/jansson/jansson_api.h
-	include/jansson/jansson_config.h)
+  ${SOURCES_PREFIX}/jansson.h
+  include/jansson/jansson_api.h
+  include/jansson/jansson_config.h)
 if(CMSDK_IS_ARM)
-	set(LIB_OPTION kernel)
+  set(LIB_OPTION kernel)
 endif()
 cmsdk2_add_library(
-	TARGET RELEASE_TARGET
-	NAME ${PROJECT_NAME}
-	OPTION "${LIB_OPTION}"
-	CONFIG release
-	ARCH ${CMSDK_ARCH})
+  TARGET RELEASE_TARGET
+  NAME ${PROJECT_NAME}
+  OPTION "${LIB_OPTION}"
+  CONFIG release
+  ARCH ${CMSDK_ARCH})
 target_sources(${RELEASE_TARGET}
-	PUBLIC
-	${PUBLIC_SOURCES}
-	PRIVATE
-	${PRIVATE_SOURCELIST})
+  PUBLIC
+  ${PUBLIC_SOURCES}
+  PRIVATE
+  ${PRIVATE_SOURCELIST})
 target_compile_definitions(${RELEASE_TARGET}
-	PUBLIC
-	HAVE_CONFIG_H=1
-	PRIVATE
-	IS_LOCAL_BUILD=1)
+  PUBLIC
+  HAVE_CONFIG_H=1
+  PRIVATE
+  IS_LOCAL_BUILD=1)
 target_compile_options(${RELEASE_TARGET} PUBLIC ${API_PUBLIC_COMPILE_OPTIONS})
 target_include_directories(${RELEASE_TARGET}
-	PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/jansson/src>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/jansson>
-	PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/include/jansson
-	${CMAKE_CURRENT_SOURCE_DIR}
-	jansson/src)
+  PUBLIC
+  $<INSTALL_INTERFACE:include/jansson>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/jansson/src>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/jansson>
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/jansson
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  jansson/src)
 cmsdk2_add_library(
-	TARGET DEBUG_TARGET
-	NAME ${PROJECT_NAME}
-	OPTION "${LIB_OPTION}"
-	CONFIG debug
-	ARCH ${CMSDK_ARCH})
-cmsdk2_copy_target(
-	SOURCE ${RELEASE_TARGET}
-	DESTINATION ${DEBUG_TARGET})
+  TARGET DEBUG_TARGET
+  NAME ${PROJECT_NAME}
+  OPTION "${LIB_OPTION}"
+  CONFIG debug
+  ARCH ${CMSDK_ARCH})
 target_compile_options(${DEBUG_TARGET} PUBLIC ${API_PUBLIC_DEBUG_COMPILE_OPTIONS})
 if(CMSDK_IS_ARM)
-	cmsdk2_library_add_dependencies(
-		TARGET ${RELEASE_TARGET}
-		DEPENDENCIES StratifyOS_interface)
-	cmsdk2_library_add_dependencies(
-		TARGET ${DEBUG_TARGET}
-		DEPENDENCIES StratifyOS_interface)
+  cmsdk2_library_add_dependencies(
+    TARGET ${RELEASE_TARGET}
+    DEPENDENCIES StratifyOS_interface
+    TARGETS RELEASE_TARGETS)
+else()
+  cmsdk2_library_add_dependencies(
+    TARGET ${RELEASE_TARGET}
+    TARGETS RELEASE_TARGETS)
 endif()
+
+cmsdk2_copy_target(
+  SOURCE ${RELEASE_TARGET}
+  DESTINATION ${DEBUG_TARGET})
+
+cmsdk2_library_add_dependencies(
+  TARGET ${DEBUG_TARGET}
+  TARGETS DEBUG_TARGETS)
+
 install(FILES
-	./jansson/src/jansson.h
-	./include/jansson/jansson_api.h
-	./include/jansson/jansson_config.h
-	DESTINATION include/jansson)
-install(FILES ${PROJECT_NAME}.cmake
-	DESTINATION ${CMSDK_LOCAL_PATH}/cmake/targets)
+  ./jansson/src/jansson.h
+  ./include/jansson/jansson_api.h
+  ./include/jansson/jansson_config.h
+  DESTINATION include/jansson)
+
+cmsdk2_install(
+  NAME jansson
+  TARGETS ${RELEASE_TARGETS} ${DEBUG_TARGETS}
+  EXPORT JsonAPITargets)

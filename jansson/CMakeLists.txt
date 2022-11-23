@@ -89,13 +89,3 @@ cmsdk2_library_add_dependencies(
   TARGET ${DEBUG_TARGET}
   TARGETS DEBUG_TARGETS)
 
-install(FILES
-  ./jansson/src/jansson.h
-  ./include/jansson/jansson_api.h
-  ./include/jansson/jansson_config.h
-  DESTINATION include/jansson)
-
-cmsdk2_install(
-  NAME jansson
-  TARGETS ${RELEASE_TARGETS} ${DEBUG_TARGETS}
-  EXPORT JsonAPITargets)

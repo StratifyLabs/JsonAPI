@@ -1,4 +1,4 @@
-# Version 1.5.3 (unreleased)
+# Version 1.5.3
 
 ## Bug Fixes
 

@@ -10,7 +10,12 @@ cxx_library(
         "macros.hpp": "include/json/macros.hpp",
     },
     exported_deps = [
-        "API//:api"
+        "API//:api",
+        "API//:fs",
+        "API//:printer",
+    ],
+    deps = [
+        "JsonAPI//jansson:jansson_api"
     ],
     header_namespace = "json",
     visibility = ["PUBLIC"]

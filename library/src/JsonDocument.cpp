@@ -4,14 +4,17 @@
 #include "xml2json.hpp"
 #endif
 
-#include <fs.hpp>
-#include <printer.hpp>
-#include <var.hpp>
+#include <fs/DataFile.hpp>
+#include <printer/Printer.hpp>
+#include <var/Deque.hpp>
 
 #include "json/JsonDocument.hpp"
 
 using namespace var;
 using namespace json;
+using namespace fs;
+using namespace printer;
+
 
 namespace {
 int write_file_data(const char *buffer, size_t buflen, void *data) {

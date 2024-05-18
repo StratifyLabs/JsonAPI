@@ -1,28 +1,78 @@
 
-
-git_fetch(
-    name = "jansson.git",
-    repo = "https://github.com/akheron/jansson.git",
-    rev = "0677666f65b988b2dd44d02966a08fea490d5883",
-    visibility = ["PUBLIC"]
+http_archive(
+    name = "jansson_src",
+    urls = ["https://github.com/akheron/jansson/releases/download/v2.14/jansson-2.14.tar.gz"],
+    sha256 = "5798d010e41cf8d76b66236cfb2f2543c8d082181d16bc3085ab49538d4b9929",
+    sub_targets = [
+        "jansson-2.14/src/dump.c",
+        "jansson-2.14/src/error.c",
+        "jansson-2.14/src/hashtable.c",
+        "jansson-2.14/src/hashtable_seed.c",
+        "jansson-2.14/src/load.c",
+        "jansson-2.14/src/memory.c",
+        "jansson-2.14/src/pack_unpack.c",
+        "jansson-2.14/src/strbuffer.c",
+        "jansson-2.14/src/strconv.c",
+        "jansson-2.14/src/utf.c",
+        "jansson-2.14/src/value.c",
+        "jansson-2.14/src/hashtable.h",
+        "jansson-2.14/src/jansson_private.h",
+        "jansson-2.14/src/lookup3.h",
+        "jansson-2.14/src/strbuffer.h",
+        "jansson-2.14/src/utf.h",
+        "jansson-2.14/src/jansson.h",
+    ],
 )
 
+cxx_library(
+    name = "jansson",
+    srcs = [
+        ":jansson_src[jansson-2.14/src/dump.c]",
+        ":jansson_src[jansson-2.14/src/error.c]",
+        ":jansson_src[jansson-2.14/src/hashtable.c]",
+        ":jansson_src[jansson-2.14/src/hashtable_seed.c]",
+        ":jansson_src[jansson-2.14/src/load.c]",
+        ":jansson_src[jansson-2.14/src/memory.c]",
+        ":jansson_src[jansson-2.14/src/pack_unpack.c]",
+        ":jansson_src[jansson-2.14/src/strbuffer.c]",
+        ":jansson_src[jansson-2.14/src/strconv.c]",
+        ":jansson_src[jansson-2.14/src/utf.c]",
+        ":jansson_src[jansson-2.14/src/value.c]",
+    ],
+    compiler_flags = [
+        "-DHAVE_CONFIG_H=1",
+    ],
+    headers = {
+        "jansson_config.h": "include/jansson/jansson_config.h",
+        "jansson_private_config.h": "jansson_private_config.h",
+        "hashtable.h": ":jansson_src[jansson-2.14/src/hashtable.h]",
+        "jansson_private.h": ":jansson_src[jansson-2.14/src/jansson_private.h]",
+        "lookup3.h": ":jansson_src[jansson-2.14/src/lookup3.h]",
+        "strbuffer.h": ":jansson_src[jansson-2.14/src/strbuffer.h]",
+        "utf.h": ":jansson_src[jansson-2.14/src/utf.h]",
+    },
+    header_namespace = "",
+    exported_deps = [
+        "CMakeSDK//:sdk",
+    ]
+)
 
 cxx_library(
     name = "jansson_api",
     srcs = [
         "jansson_api.c",
     ],
-    headers = [
-        "jansson_private_config.h",
-    ],
     exported_headers = {
-        "jansson_api.h": "include/jansson_api.h",
-        "jansson_config.h": "include/jansson_config.h",
+        "jansson_api.h": "include/jansson/jansson_api.h",
+        "jansson_config.h": "include/jansson/jansson_config.h",
+        "jansson.h": ":jansson_src[jansson-2.14/src/jansson.h]",
     },
     header_namespace = "jansson",
     visibility = ["PUBLIC"],
+    exported_deps = [
+        "CMakeSDK//:sdk",
+    ],
     deps = [
-        ":jansson.git",
+        ":jansson",
     ],
 )

@@ -1,0 +1,17 @@
+cxx_library(
+    name = "json",
+    srcs = [
+        "src/Json.cpp",
+        "src/JsonDocument.cpp",
+    ],
+    exported_headers = {
+        "Json.hpp": "include/json/Json.hpp",
+        "JsonDocument.hpp": "include/json/JsonDocument.hpp",
+        "macros.hpp": "include/json/macros.hpp",
+    },
+    exported_deps = [
+        "API//:api"
+    ],
+    header_namespace = "json",
+    visibility = ["PUBLIC"]
+)

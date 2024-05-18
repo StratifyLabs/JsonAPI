@@ -1,0 +1,28 @@
+
+
+git_fetch(
+    name = "jansson.git",
+    repo = "https://github.com/akheron/jansson.git",
+    rev = "0677666f65b988b2dd44d02966a08fea490d5883",
+    visibility = ["PUBLIC"]
+)
+
+
+cxx_library(
+    name = "jansson_api",
+    srcs = [
+        "jansson_api.c",
+    ],
+    headers = [
+        "jansson_private_config.h",
+    ],
+    exported_headers = {
+        "jansson_api.h": "include/jansson_api.h",
+        "jansson_config.h": "include/jansson_config.h",
+    },
+    header_namespace = "jansson",
+    visibility = ["PUBLIC"],
+    deps = [
+        ":jansson.git",
+    ],
+)

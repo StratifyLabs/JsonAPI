@@ -80,6 +80,7 @@ if(CMSDK_IS_ARM)
 		TARGET ${DEBUG_TARGET}
 		DEPENDENCIES StratifyOS_interface)
 endif()
+
 install(FILES
 	./jansson/src/jansson.h
 	./include/jansson/jansson_api.h
@@ -87,3 +88,11 @@ install(FILES
 	DESTINATION include/jansson)
 install(FILES ${PROJECT_NAME}.cmake
 	DESTINATION ${CMSDK_LOCAL_PATH}/cmake/targets)
+
+cmsdk2_copy_target(
+  SOURCE ${RELEASE_TARGET}
+  DESTINATION ${DEBUG_TARGET})
+
+cmsdk2_library_add_dependencies(
+  TARGET ${DEBUG_TARGET})
+

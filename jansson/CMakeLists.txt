@@ -86,6 +86,5 @@ cmsdk2_copy_target(
   DESTINATION ${DEBUG_TARGET})
 
 cmsdk2_library_add_dependencies(
-  TARGET ${DEBUG_TARGET}
-  TARGETS DEBUG_TARGETS)
+  TARGET ${DEBUG_TARGET})
 
